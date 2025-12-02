@@ -35,7 +35,10 @@ class BookingPaymentResource extends Resource
         return [   
                 Select::make('payment_method')
                     ->options(['card' => 'Card', 'bank_transfer' => 'Bank transfer', 'cash' => 'Cash'])
-                    ->required(), 
+                    ->required(),
+                Select::make('payment_status')
+                    ->options(['pending' => 'Pending', 'paid' => 'Paid', 'failed' => 'Failed'])
+                    ->required(),
                 TextInput::make('payment_reference'),
                 TextInput::make('amount')
                     ->required()
