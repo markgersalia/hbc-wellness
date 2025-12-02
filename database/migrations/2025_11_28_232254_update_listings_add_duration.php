@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('listings', function (Blueprint $table) {
             //
-            $table->int('duration')->nullable()->after('is_always_available');
+            $table->integer('duration')->nullable()->after('is_always_available');
         });
     }
 
