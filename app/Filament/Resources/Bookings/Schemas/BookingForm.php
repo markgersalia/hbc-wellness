@@ -6,15 +6,19 @@ use App\Filament\Resources\Customers\Schemas\CustomerForm;
 use App\Models\Booking;
 use App\Models\Customer;
 use App\Models\Listing;
-use Coolsam\Flatpickr\Forms\Components\Flatpickr;
+use Carbon\Carbon;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 
 class BookingForm
 {
@@ -86,17 +90,8 @@ class BookingForm
                         })
                         ->columnSpanFull(),
                     Group::make([
-                        Flatpickr::make('start_time')
-                            ->time(true)
-                            ->time24hr(false)
-                            ->minDate(fn() => today())
-                            ->required(),
-                        Flatpickr::make('end_time')
-
-                            ->time(true)
-                            ->time24hr(false)
-                            ->minDate(fn() => today())
-                            ->required(),
+                        Hidden::make('start_time'),
+                        Hidden::make('end_time'),
                     ])->columns(2)->columnSpanFull(),
 
                     TextInput::make('price')
@@ -106,24 +101,25 @@ class BookingForm
                         ->numeric()
                         ->hidden(!config('booking.has_listings'))
                         ->helperText('Set the price for this booking. '),
-                    Textarea::make('location')
-                        ->columnSpanFull(),
                     Textarea::make('notes')
                         ->columnSpanFull(),
                 ])->columns(2),
 
             ])->columnSpan(2),
             Group::make([
-
                 Section::make([
                     TextInput::make('booking_number')
-                        ->default(function () {
-                            $latest = Booking::latest('id')->first();
+                    ->label('Booking Number')
+                    ->readOnly()
+                    ->afterStateHydrated(function ($state, callable $set) {
+                        // Only populate if the field is empty
+                        if (!$state) {
+                            $latest = \App\Models\Booking::latest('id')->first();
                             $nextNumber = $latest ? $latest->id + 1 : 1;
 
-                            return 'BK-' . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
-                        })
-                        ->readOnly(),
+                            $set('booking_number', 'BK-' . str_pad($nextNumber, 5, '0', STR_PAD_LEFT));
+                        }
+                    }),
                     Select::make('status')
                         ->options([
                             'pending' => 'Pending',
@@ -131,9 +127,53 @@ class BookingForm
                             'canceled' => 'Canceled',
                             'completed' => 'Completed',
                         ])
-                        ->default('pending')
+                        ->afterStateHydrated(function ($state, callable $set) {
+                            if(!$state){
+                                $set('status', 'pending');
+                            }
+                        })
                         ->required(),
-                ])
+                ]),
+                Section::make([
+                    DatePicker::make('selected_date')
+                        ->label('Select Date')
+                        ->afterStateHydrated(function ($state, callable $set, callable $get) {
+                            $startTime = $get('start_time');
+
+                            if ($startTime) {
+                                $date = $startTime instanceof Carbon ? $startTime : Carbon::parse($startTime);
+                                $set('selected_date', $date->toDateString());
+                            }
+                        })
+                        ->reactive(),
+
+                    ToggleButtons::make('available_timeslots')
+                        ->options(function (callable $get) {
+                            $date = $get('selected_date');
+
+                            if (!$date) return [];
+
+                            return Booking::availableTimeslots($date);
+                        })
+                        ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                            if (!$state) {
+                                return;
+                            }
+
+                            [$start, $end] = explode(' - ', $state);
+
+                            // ✔ Correct: use $get() to read the selected date
+                            $date = $get('selected_date');
+
+                            // ✔ Correct: use $set() with 2 arguments to save datetime values
+                            $set('start_time', "$date $start");
+                            $set('end_time', "$date $end");
+                        })
+                        ->inline()
+                        ->reactive()
+
+                ]),
+
             ])->columnSpan(1)
         ];
     }

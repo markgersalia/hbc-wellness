@@ -28,22 +28,20 @@ class BookingPaymentResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema
-            ->components([
-                Select::make('booking_id')
-                    ->relationship('booking','booking_number')
-                    ->required(), 
+            ->components(self::schema());
+    }
+
+    public static function schema(){
+        return [   
                 Select::make('payment_method')
                     ->options(['card' => 'Card', 'bank_transfer' => 'Bank transfer', 'cash' => 'Cash'])
-                    ->required(),
-                Select::make('payment_status')
-                    ->options(['pending' => 'Pending', 'paid' => 'Paid', 'failed' => 'Failed'])
-                    ->required(),
+                    ->required(), 
                 TextInput::make('payment_reference'),
                 TextInput::make('amount')
                     ->required()
                     ->columnSpanFull()
                     ->numeric(),
-            ]);
+        ];
     }
 
     public static function table(Table $table): Table

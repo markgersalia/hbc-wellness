@@ -2,9 +2,13 @@
 
 namespace App\Filament\Resources\Bookings\Pages;
 
+use App\Filament\Resources\BookingPayments\BookingPaymentResource;
 use App\Filament\Resources\Bookings\BookingResource;
+use App\Models\BookingPayment;
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\EditRecord;
 
 class EditBooking extends EditRecord
@@ -16,6 +20,17 @@ class EditBooking extends EditRecord
         return [
             ViewAction::make(),
             DeleteAction::make(),
+             Action::make('Make Payment')
+                ->schema(BookingPaymentResource::schema())
+                ->action(function ($record, array $data): void {
+                    // ...
+ 
+                    $record->payments()->create($data);
+                })->after(function () {
+                        $this->dispatch('paymentsRelationManager');
+                    })
+                    
+                
         ];
     }
 }

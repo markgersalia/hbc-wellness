@@ -22,10 +22,7 @@ class ListingsTable
                     ->searchable(),
                 TextColumn::make('title')
                     ->searchable(),
-                TextColumn::make('type')
-                    ->badge(),
-                TextColumn::make('price')
-                    ->money()
+                TextColumn::make('price') 
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
@@ -35,12 +32,9 @@ class ListingsTable
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('available_from')
-                    ->dateTime()
-                    ->sortable(),
-                TextColumn::make('available_to')
-                    ->dateTime()
-                    ->sortable(),
+                    TextColumn::make('bookings_count')
+                ->label('Total Bookings')
+                ->counts('bookings')
             ])
             ->filters([
                 //

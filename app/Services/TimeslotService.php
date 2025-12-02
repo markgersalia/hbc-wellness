@@ -1,0 +1,31 @@
+<?php
+
+namespace App\Services;
+
+use Carbon\Carbon; class TimeslotService
+{
+    public static function generateForDay($date, $interval = 60, $start = '09:00', $end = '17:00')
+    {
+        $slots = [];
+
+        $startTime = Carbon::parse("$date $start");
+        $endTime   = Carbon::parse("$date $end");
+
+        while ($startTime->copy()->addMinutes($interval) <= $endTime) {
+            $slotStart = $startTime->copy();
+            $slotEnd   = $startTime->copy()->addMinutes($interval);
+
+            $slots[] = [
+                'start' => $slotStart,
+                'end'   => $slotEnd,
+                'label' => $slotStart->format('H:i') . " - " . $slotEnd->format('H:i')
+            ];
+
+            $startTime->addMinutes($interval);
+        }
+
+        return $slots;
+    }
+}
+
+

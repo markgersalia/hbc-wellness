@@ -25,7 +25,7 @@ class BookingsRelationManager extends RelationManager
     public function form(Schema $schema): Schema
     {
         return $schema
-            ->components(BookingForm::schema('customers'));
+            ->components(BookingForm::schema('customers'))->columns(3);
     }
 
     public function table(Table $table): Table

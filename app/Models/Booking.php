@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Services\TimeslotService;
+use Carbon\Carbon;
 use Guava\Calendar\Contracts\Eventable;
 use Guava\Calendar\ValueObjects\CalendarEvent;
 use Illuminate\Database\Eloquent\Model;
@@ -92,7 +94,7 @@ class Booking extends Model implements Eventable
             ->start($this->start_time)
             ->end($this->end_time)
             ->extendedProp('customer_name', $this->customer->name) 
-            ->backgroundColor($this->getStatusColor()) 
+            // ->backgroundColor($this->getStatusColor()) 
         ;
     }
 
@@ -116,4 +118,70 @@ class Booking extends Model implements Eventable
             $booking->user_id = auth()->user()->id;
         });
     }
+
+    public static function availableTimeslots($date)
+{
+    $slots = TimeslotService::generateForDay($date);
+    $bookings = self::whereDate('start_time', $date)->get();
+
+    $available = [];
+
+    foreach ($slots as $slot) {
+        $overlap = false;
+
+        foreach ($bookings as $booking) {
+            $bStart = Carbon::parse($booking->start_time);
+            $bEnd   = Carbon::parse($booking->end_time);
+
+            if ($slot['start'] < $bEnd && $slot['end'] > $bStart) {
+                $overlap = true;
+                break;
+            }
+        }
+
+        if (!$overlap) {
+            $label = $slot['label'];
+            $available[$label] = $label;
+        }
+    }
+
+    return $available;
+}
+
+// public static function availableTimeslots($date)
+// {
+//     $slots = TimeslotService::generateForDay($date); // returns ['start' => Carbon, 'end' => Carbon, 'label' => '...']
+//     $bookings = self::whereDate('start_time', $date)->get();
+
+//     $timeslots = [];
+
+//     foreach ($slots as $slot) {
+//         $slotStart = Carbon::parse($slot['start']);
+//         $slotEnd = Carbon::parse($slot['end']);
+
+//         $overlap = false;
+
+//         foreach ($bookings as $booking) {
+//             $bStart = Carbon::parse($booking->start_time);
+//             $bEnd = Carbon::parse($booking->end_time);
+
+//             if ($slotStart < $bEnd && $slotEnd > $bStart) {
+//                 $overlap = true;
+//                 break;
+//             }
+//         }
+
+//         // Convert to 12-hour format for display
+//         $label = $slotStart->format('g:i A') . ' - ' . $slotEnd->format('g:i A');
+
+//         $timeslots[$label] = [
+//             'label' => $label,
+//             'disabled' => $overlap, // mark overlap slots as disabled
+//         ];
+//     }
+
+//     return $timeslots;
+// }
+
+
 }

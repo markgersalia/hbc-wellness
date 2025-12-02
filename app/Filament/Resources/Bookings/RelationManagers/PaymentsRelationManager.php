@@ -67,10 +67,10 @@ class PaymentsRelationManager extends RelationManager
             ->filters([
                 //
             ])
-            ->headerActions([
-                CreateAction::make(),
-                AssociateAction::make(),
-            ])
+            // ->headerActions([
+            //     CreateAction::make(),
+            //     AssociateAction::make(),
+            // ])
             ->recordActions([
                 EditAction::make(),
                 DissociateAction::make(),

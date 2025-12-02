@@ -37,12 +37,13 @@ class ListingForm
                             'experience' => 'Experience',
                             'misc' => 'Misc',
                         ])
-                        ->default('misc')
+                        ->default('service')
                         ->required(),
                     TextInput::make('price')
                         ->numeric()
-                        ->prefix('$'), 
+                        ->prefix('PHP'), 
                         Toggle::make('is_always_available')
+                        ->default(true)
                     ->label('Always Available')
                     ->reactive(),
                     DateTimePicker::make('available_from')
@@ -56,7 +57,7 @@ class ListingForm
 
                     FileUpload::make('images')
                         ->multiple()
-                        ->required(),
+                        // ->required(),
                 ])->columnSpan(1),
 
             ])->columns(3);

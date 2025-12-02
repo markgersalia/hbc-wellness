@@ -2,7 +2,9 @@
 
 namespace App\Filament\Widgets;
 
+use App\Filament\Resources\Bookings\Schemas\BookingForm;
 use App\Models\Booking;
+use Filament\Actions\Action;
 use Filament\Widgets\Widget;
 use Guava\Calendar\Contracts\ContextualInfo;
 use Guava\Calendar\Enums\CalendarViewType;
@@ -13,6 +15,7 @@ use Guava\Calendar\ValueObjects\FetchInfo;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Builder;
 use Guava\Calendar\Enums\Context;
+use Guava\Calendar\ValueObjects\DateSelectInfo;
 use Guava\Calendar\ValueObjects\EventClickInfo;
 use Guava\Calendar\ValueObjects\EventDropInfo;
 use Illuminate\Database\Eloquent\Model;
@@ -22,34 +25,39 @@ class CalendarWidget extends FilamentCalendarWidget
     // protected CalendarViewType $calendarView = CalendarViewType::ListWeek;
     protected bool $eventClickEnabled = true;
     protected bool $dateClickEnabled  = true;
+    // protected bool $dateSelectEnabled = true;
+    // protected bool $eventResizeEnabled = true;
+
+
     protected bool $eventDragEnabled = true;
 
 
-    public function getHeaderActions(): array
-    {
-        return parent::getHeaderActions();
-    }
-
-
+    // public function getHeaderActions(): array
+    // {
+    //     return [
+    //         Action::make('Create Booking')
+    //             ->schema(
+    //                 BookingForm::schema()
+    //             ) 
+    //     ];
+    // }  
     
-    public function createBookingAction(): CreateAction
-    {
-        return $this->createAction(\App\Models\Booking::class)
-            ->label('Create Booking')
-            ->mutateDataUsing(function (array $data) {
- 
-                // dd($data['start_time'], $livewire);
-                // $data['start_time'] = $livewire->clickedDate;
-                // $data['end_time']   = now()->parse($livewire->clickedDate)->addHour();
-
-                return $data;
-            })
-            ->after(function () {
-                $this->refreshRecords();
-            });
-    }
-
-
+public function createBookingAction(): CreateAction
+{
+    return $this->createAction(\App\Models\Booking::class)
+        ->label('Create Booking')
+         ->fillForm(function (?ContextualInfo $info) { 
+            // You can now access contextual info from the calendar using the $info argument
+            if ($info instanceof DateClickInfo) {
+                   return [
+                    'start_time' => $info->date->toDateTimeString(),
+                    'end_time'   => $info->date->toDateTimeString(),
+                ];
+            }
+  
+        })
+        ->after(fn () => $this->refreshRecords());
+}
     protected function getDateClickContextMenuActions(): array
     {
         return [
@@ -95,4 +103,12 @@ class CalendarWidget extends FilamentCalendarWidget
             ->whereDate('start_time', '<=', $info->end);
     }
     
+
+    protected function getEventClickContextMenuActions(): array
+    {
+        return [
+            $this->editAction(),
+            $this->deleteAction(),
+        ];
+    }
 }
