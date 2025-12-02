@@ -42,7 +42,6 @@ class BookingPaymentResource extends Resource
                 TextInput::make('payment_reference'),
                 TextInput::make('amount')
                     ->required()
-                    ->columnSpanFull()
                     ->numeric(),
         ];
     }
