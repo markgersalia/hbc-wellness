@@ -20,6 +20,7 @@ class Booking extends Model implements Eventable
         'booking_number',     // who booked
         'customer_id',  // who bookedich listing
         'listing_id',  // which listing
+        'therapist_id',
         'start_time',
         'end_time',
         'status',      // pending, confirmed, canceled, completed
@@ -53,6 +54,10 @@ class Booking extends Model implements Eventable
     public function customer()
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    public function therapist(){
+        return $this->belongsTo(Therapist::class);
     }
 
 
@@ -94,7 +99,7 @@ class Booking extends Model implements Eventable
             ->start($this->start_time)
             ->end($this->end_time)
             ->extendedProp('customer_name', $this->customer->name) 
-            // ->backgroundColor($this->getStatusColor()) 
+            ->backgroundColor($this->getStatusColor()) 
         ;
     }
 

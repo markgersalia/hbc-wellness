@@ -16,6 +16,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class ListingResource extends Resource
 {
@@ -23,6 +24,7 @@ class ListingResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::ListBullet;
     
+    protected static UnitEnum|string|null $navigationGroup = 'Booking Management';
     public static function canAccess(): bool
 {
     return config('booking.has_listings') === true;

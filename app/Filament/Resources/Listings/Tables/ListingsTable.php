@@ -16,12 +16,10 @@ class ListingsTable
     {
         return $table
             ->columns([
-                ImageColumn::make('images')
-                    ->circular()
-                    ->stacked()
-                    ->searchable(),
+                ImageColumn::make('images') 
+                    ->stacked(),
                 TextColumn::make('title')
-                    ->searchable(),
+                    ->searchable(), 
                 TextColumn::make('price') 
                     ->sortable(),
                 TextColumn::make('created_at')

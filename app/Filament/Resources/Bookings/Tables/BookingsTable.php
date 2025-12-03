@@ -45,31 +45,23 @@ class BookingsTable
     {
         return
             [
+                
+                ImageColumn::make('customer.image')
+                
+                    ->searchable()
+                    ->circular()
+                    ->sortable(), 
+                ImageColumn::make('therapist.image')
+                    ->circular(),
                 ImageColumn::make('listing.images')
                     ->label('')
                     ->visible(config('booking.has_listings')),
                 TextColumn::make('listing.title')
-                    ->numeric()
-                    ->visible(config('booking.has_listings'))
-                    ->sortable(),
-                    
-                TextColumn::make('title')
-                    ->numeric()
-                    ->visible(!config('booking.has_listings'))
-                    ->sortable(),
+                    ->numeric() 
+                    ->sortable(), 
                 TextColumn::make('price')
-                    ->numeric()
-                    ->visible(!config('booking.has_listings'))
-                    ->sortable(),
-                TextColumn::make('type')
-                    ->numeric()
-                    ->visible(!config('booking.has_listings'))
-                    ->sortable(),
-                TextColumn::make('user.name')
-                    ->label("Processed By")
-                    ->sortable(),
-                TextColumn::make('customer.name')
-                    ->sortable(),
+                    ->numeric() 
+                    ->sortable(),  
                 TextColumn::make('start_time')
                     ->dateTime()
                     ->sortable(),
@@ -78,6 +70,9 @@ class BookingsTable
                     ->sortable(),
                 TextColumn::make('status')
                     ->badge(),
+                TextColumn::make('user.name')
+                    ->label("Processed By")
+                    ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

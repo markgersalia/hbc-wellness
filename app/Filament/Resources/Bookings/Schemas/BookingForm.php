@@ -6,6 +6,7 @@ use App\Filament\Resources\Customers\Schemas\CustomerForm;
 use App\Models\Booking;
 use App\Models\Customer;
 use App\Models\Listing;
+use App\Models\Therapist;
 use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
@@ -18,7 +19,8 @@ use Filament\Forms\Components\ToggleButtons;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
+use Filament\Support\Icons\Heroicon; 
+use Illuminate\Support\Facades\Storage;
 
 class BookingForm
 {
@@ -34,7 +36,33 @@ class BookingForm
         return [
             Group::make([
                 Section::make('Booking Information')->schema([
+                    TextInput::make('booking_number')
+                        ->label('Booking Number')
+                        ->readOnly()
+                        ->afterStateHydrated(function ($state, callable $set) {
+                            // Only populate if the field is empty
+                            if (!$state) {
+                                $latest = \App\Models\Booking::latest('id')->first();
+                                $nextNumber = $latest ? $latest->id + 1 : 1;
 
+                                $set('booking_number', 'BK-' . str_pad($nextNumber, 5, '0', STR_PAD_LEFT));
+                            }
+                        }),
+                    Select::make('status')
+                        ->options([
+                            'pending' => 'Pending',
+                            'confirmed' => 'Confirmed',
+                            'canceled' => 'Canceled',
+                            'completed' => 'Completed',
+                        ])
+                        ->afterStateHydrated(function ($state, callable $set) {
+                            if (!$state) {
+                                $set('status', 'pending');
+                            }
+                        })
+                        ->required(),
+                 
+                        
                     Group::make([
                         TextInput::make('title')
                             ->label('Booking Title')
@@ -59,19 +87,21 @@ class BookingForm
                             ->numeric()
                             ->helperText('Set the price for this booking. '),
                     ])->columns(2)
-                ])->hidden(config('booking.has_listings')),
+                    ->hidden(config('booking.has_listings')),
+                ]),
                 Section::make([
 
                     Select::make('customer_id')
                         ->relationship(name: 'customer', titleAttribute: 'name')
                         ->options(Customer::query()->pluck('name', 'id'))
                         ->hidden($type == "customers")
-                        ->searchable()
-                        ->columnSpanFull()
+                        ->searchable() 
                         ->createOptionForm(
                             CustomerForm::schema()
                         )
+                        ->columnSpanFull()
                         ->required(),
+                   
                     Select::make('listing_id')
                         ->hidden($type == "listings")
                         ->relationship(name: 'listing', titleAttribute: 'title')
@@ -88,11 +118,9 @@ class BookingForm
                                 $set('price', null);
                             }
                         })
-                        ->columnSpanFull(),
-                    Group::make([
+                        ->columnSpanFull(), 
                         Hidden::make('start_time'),
-                        Hidden::make('end_time'),
-                    ])->columns(2)->columnSpanFull(),
+                        Hidden::make('end_time'), 
 
                     TextInput::make('price')
                         ->label('Booking Price')
@@ -108,33 +136,6 @@ class BookingForm
             ])->columnSpan(2),
             Group::make([
                 Section::make([
-                    TextInput::make('booking_number')
-                    ->label('Booking Number')
-                    ->readOnly()
-                    ->afterStateHydrated(function ($state, callable $set) {
-                        // Only populate if the field is empty
-                        if (!$state) {
-                            $latest = \App\Models\Booking::latest('id')->first();
-                            $nextNumber = $latest ? $latest->id + 1 : 1;
-
-                            $set('booking_number', 'BK-' . str_pad($nextNumber, 5, '0', STR_PAD_LEFT));
-                        }
-                    }),
-                    Select::make('status')
-                        ->options([
-                            'pending' => 'Pending',
-                            'confirmed' => 'Confirmed',
-                            'canceled' => 'Canceled',
-                            'completed' => 'Completed',
-                        ])
-                        ->afterStateHydrated(function ($state, callable $set) {
-                            if(!$state){
-                                $set('status', 'pending');
-                            }
-                        })
-                        ->required(),
-                ]),
-                Section::make([
                     DatePicker::make('selected_date')
                         ->label('Select Date')
                         ->afterStateHydrated(function ($state, callable $set, callable $get) {
@@ -145,9 +146,13 @@ class BookingForm
                                 $set('selected_date', $date->toDateString());
                             }
                         })
+                        ->required()
                         ->reactive(),
 
                     ToggleButtons::make('available_timeslots')
+                        ->hidden(function(callable $get){
+                            return $get('selected_date') == null;
+                        })
                         ->options(function (callable $get) {
                             $date = $get('selected_date');
 
@@ -170,7 +175,28 @@ class BookingForm
                             $set('end_time', "$date $end");
                         })
                         ->inline()
-                        ->reactive()
+                        ->reactive(),
+                         Select::make('therapist_id')
+                         ->required()
+                        ->label('Assign Therapist')
+                        ->hidden(function(callable $get){
+                            return $get('available_timeslots') == null;
+                        })
+                        ->options(function (callable $get) {
+                            $date = $get('date');
+                            $start = $get('start_time');
+                            $end = $get('end_time');
+
+                            if (!$date || !$start || !$end) {
+                                return Therapist::pluck('name', 'id');
+                            }
+
+                            return Therapist::all()
+                                ->filter(fn ($t) => $t->isAvailable($date, $start, $end))
+                                ->pluck('name', 'id');
+                        })
+                        ->preload()
+                        ->columnSpan(1),
 
                 ]),
 

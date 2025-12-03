@@ -52,9 +52,9 @@ class StatsOverview extends StatsOverviewWidget
                 'Revenue This Month',
                 $revenueThisMonth
             )
-                ->description('Total confirmed payments for this month')
-                ->descriptionIcon('heroicon-o-banknotes')
-                ->color('primary'),
+                ->description('Payments this month') 
+                ->descriptionIcon('heroicon-o-check')
+                ->color('success'),
 
             Stat::make(
                 'Total Bookings',
@@ -74,8 +74,7 @@ class StatsOverview extends StatsOverviewWidget
                 ->description(Customer::whereHas('bookings',function($q){
                     $q->confirmed();
                 })->count() . ' has active booking')
-                ->descriptionIcon('heroicon-o-calendar')
-                ->color('success'),
+                ->descriptionIcon('heroicon-o-calendar') 
         ];
     }
 }

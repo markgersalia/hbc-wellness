@@ -17,7 +17,8 @@ class TherapistForm
             ->components([
                 Section::make([
                     
-                FileUpload::make('image'),
+                FileUpload::make('image')
+                ->avatar(),
                 TextInput::make('name')
                     ->required(),
                 Textarea::make('bio')
@@ -28,6 +29,7 @@ class TherapistForm
                 TextInput::make('phone')
                     ->tel(),
                 Toggle::make('is_active')
+                    ->default(true)
                     ->required(),
                     
                 ])
