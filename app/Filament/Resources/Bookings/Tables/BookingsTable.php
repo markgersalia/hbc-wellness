@@ -45,20 +45,14 @@ class BookingsTable
     {
         return
             [
-                
-                ImageColumn::make('customer.image')
-                
-                    ->searchable()
-                    ->circular()
-                    ->sortable(), 
-                ImageColumn::make('therapist.image')
-                    ->circular(),
-                ImageColumn::make('listing.images')
-                    ->label('')
-                    ->visible(config('booking.has_listings')),
+                ImageColumn::make('listing.images'),
                 TextColumn::make('listing.title')
                     ->numeric() 
                     ->sortable(), 
+                TextColumn::make('customer.name') 
+                    ->searchable() 
+                    ->sortable(),   
+                TextColumn::make('therapist.name'),
                 TextColumn::make('price')
                     ->numeric() 
                     ->sortable(),  

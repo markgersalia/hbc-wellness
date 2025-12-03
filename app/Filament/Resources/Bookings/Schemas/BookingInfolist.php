@@ -82,24 +82,6 @@ class BookingInfolist
 
 
                     ]),
-                    Section::make('Therapist Info')->schema([
-
-                        ImageEntry::make('therapist.image')
-                            ->label('')
-                            ->circular(),
-                        TextEntry::make('therapist.name')
-                            ->label('Customer')
-                            ->icon('heroicon-m-user-circle'),
-
-                        TextEntry::make('therapist.email')
-                            ->label('Email')
-                            ->icon('heroicon-m-envelope'),
-
-                        TextEntry::make('therapist.phone')
-                            ->label('Phone')
-                            ->icon('heroicon-m-phone'),
- 
-                    ]),
                 ])->columnSpan(2),
                 Group::make([
                     Section::make('Additional Info')
@@ -133,6 +115,20 @@ class BookingInfolist
                                 ->placeholder('-')
                                 ->icon('heroicon-m-clock'),
                         ]),
+                        
+                    Section::make('Therapist Info')->schema([
+
+                        ImageEntry::make('therapist.image') 
+                            ->circular(),
+                        TextEntry::make('therapist.name'),
+
+                        TextEntry::make('therapist.email')
+                            ->label('Email'),
+
+                        TextEntry::make('therapist.phone')
+                            ->label('Phone'),
+ 
+                    ]),
                 ])->columnSpan(1)
 
 

@@ -2,30 +2,43 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class Therapist extends Model
 {
     //
-    protected $fillable = ['image','name','bio','availability','branch_id','email','phone','is_active'];
+    protected $fillable = ['image', 'name', 'bio', 'availability', 'branch_id', 'email', 'phone', 'is_active'];
 
+    protected $casts = [
+        'boolean'=>'is_active'
+    ];
 
-
-    public function booking(){
+    public function bookings()
+    {
         return $this->hasMany(Booking::class);
     }
-public function isAvailable($date, $startTime, $endTime)
-{
-    return !$this->bookings()
-        ->where('date', $date)
-        ->where(function ($q) use ($startTime, $endTime) {
-            $q->whereBetween('start_time', [$startTime, $endTime])
-              ->orWhereBetween('end_time', [$startTime, $endTime])
-              ->orWhere(function ($q2) use ($startTime, $endTime) {
-                  $q2->where('start_time', '<=', $startTime)
-                     ->where('end_time', '>=', $endTime);
-              });
-        })
-        ->exists();
-}
+
+    public function scopeActive($q){
+        return $q->where('is_active', 1);
+    }
+
+    public function isAvailable($date, $startTime, $endTime)
+    {
+        $start = Carbon::parse($startTime);
+        $end   = Carbon::parse($endTime);
+
+        // Override date to avoid double-date issue
+        $start->setDate(Carbon::parse($date)->year, Carbon::parse($date)->month, Carbon::parse($date)->day);
+        $end->setDate(Carbon::parse($date)->year, Carbon::parse($date)->month, Carbon::parse($date)->day);
+
+        return !$this->bookings()
+            ->confirmed()
+            ->whereDate('start_time', $date)
+            ->where(function ($q) use ($start, $end) {
+                $q->where('start_time', '<', $end)
+                    ->where('end_time', '>', $start);
+            })
+            ->exists();
+    }
 }

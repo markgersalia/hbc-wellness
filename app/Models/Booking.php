@@ -36,9 +36,9 @@ class Booking extends Model implements Eventable
     {
         return match ($this->status) {
             'pending'   => '#fbbf24', // amber
-            'confirmed' => '#4ade80', // green
+            'confirmed' => '#60a5fa', // blue
             'canceled'  => '#f87171', // red
-            'completed' => '#60a5fa', // blue
+            'completed' => '#4ade80', // green
             default     => '#9ca3af', // gray
         };
     }

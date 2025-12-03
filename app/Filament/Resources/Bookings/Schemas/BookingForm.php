@@ -19,7 +19,7 @@ use Filament\Forms\Components\ToggleButtons;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon; 
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Storage;
 
 class BookingForm
@@ -61,8 +61,8 @@ class BookingForm
                             }
                         })
                         ->required(),
-                 
-                        
+
+
                     Group::make([
                         TextInput::make('title')
                             ->label('Booking Title')
@@ -87,7 +87,7 @@ class BookingForm
                             ->numeric()
                             ->helperText('Set the price for this booking. '),
                     ])->columns(2)
-                    ->hidden(config('booking.has_listings')),
+                        ->hidden(config('booking.has_listings')),
                 ]),
                 Section::make([
 
@@ -95,13 +95,13 @@ class BookingForm
                         ->relationship(name: 'customer', titleAttribute: 'name')
                         ->options(Customer::query()->pluck('name', 'id'))
                         ->hidden($type == "customers")
-                        ->searchable() 
+                        ->searchable()
                         ->createOptionForm(
                             CustomerForm::schema()
                         )
                         ->columnSpanFull()
                         ->required(),
-                   
+
                     Select::make('listing_id')
                         ->hidden($type == "listings")
                         ->relationship(name: 'listing', titleAttribute: 'title')
@@ -118,9 +118,9 @@ class BookingForm
                                 $set('price', null);
                             }
                         })
-                        ->columnSpanFull(), 
-                        Hidden::make('start_time'),
-                        Hidden::make('end_time'), 
+                        ->columnSpanFull(),
+                    Hidden::make('start_time'),
+                    Hidden::make('end_time'),
 
                     TextInput::make('price')
                         ->label('Booking Price')
@@ -148,9 +148,9 @@ class BookingForm
                         })
                         ->required()
                         ->reactive(),
-                         
+
                     ToggleButtons::make('available_timeslots')
-                        ->hidden(function(callable $get){
+                        ->hidden(function (callable $get) {
                             return $get('selected_date') == null;
                         })
                         ->options(function (callable $get) {
@@ -159,36 +159,47 @@ class BookingForm
                             if (!$date) return [];
 
                             return Booking::availableTimeslots($date);
-                        }) 
-                         ->disableOptionWhen(function (string $value, callable $get, $record = null) {
-                            $overlap = false;
+                        })->disableOptionWhen(function (string $value, callable $get, $record = null) {
+
                             $date = $get('selected_date');
+                            $branchId = $get('branch_id');
+
                             if (!$date) return false;
 
-                            $bookings = Booking::whereDate('start_time', $date)->get();
+                            [$slotStartStr, $slotEndStr] = explode(' - ', $value);
 
-                            foreach ($bookings as $booking) {
-                                // Skip the current booking if editing
-                                if ($record && $booking->id === $record->id) {
-                                    continue;
-                                }
+                            $slotStart = Carbon::parse("$date $slotStartStr");
+                            $slotEnd   = Carbon::parse("$date $slotEndStr");
 
-                                $bStart = Carbon::parse($booking->start_time);
-                                $bEnd   = Carbon::parse($booking->end_time);
+                            // Get all therapists in this branch
+                            $therapists = Therapist::where('branch_id', $branchId)
+                                ->active()
+                                ->get();
 
-                                [$slotStartStr, $slotEndStr] = explode(' - ', $value);
-                                $slotStart = Carbon::parse("$date $slotStartStr");
-                                $slotEnd   = Carbon::parse("$date $slotEndStr");
+                            // Check if ANY therapist is available
+                            foreach ($therapists as $therapist) {
 
-                                if ($slotStart < $bEnd && $slotEnd > $bStart) {
-                                    $overlap = true;
-                                    break;
+                                $hasConflict = $therapist->bookings()
+                                    ->confirmed()
+                                    ->whereDate('start_time', $date)
+                                    ->when($record, fn($q) => $q->where('id', '!=', $record->id))
+                                    ->where(function ($q) use ($slotStart, $slotEnd) {
+                                        $q->where('start_time', '<', $slotEnd)
+                                            ->where('end_time', '>', $slotStart);
+                                    })
+                                    ->exists();
+
+                                if (!$hasConflict) {
+                                    // Therapist is free → timeslot should be allowed
+                                    return false;
                                 }
                             }
 
-                            return $overlap; // true = disable this option
+                            // No therapist is available → disable
+                            return true;
                         })
-                         ->afterStateHydrated(function ($state, callable $set, callable $get, $record) {
+
+                        ->afterStateHydrated(function ($state, callable $set, callable $get, $record) {
                             if (!$record || !$record->start_time || !$record->end_time) return;
 
                             $start = Carbon::parse($record->start_time)->format('H:i');
@@ -196,44 +207,55 @@ class BookingForm
 
                             $set('available_timeslots', "$start - $end");
                         })
+
                         ->afterStateUpdated(function ($state, callable $set, callable $get) {
                             if (!$state) {
+                                // if cleared, also clear start/end and therapist selection
+                                $set('start_time', null);
+                                $set('end_time', null);
+                                $set('therapist_id', null);
                                 return;
                             }
 
                             [$start, $end] = explode(' - ', $state);
 
-                            // ✔ Correct: use $get() to read the selected date
+                            // NOTE: use the same date key used by this toggle -> selected_date
                             $date = $get('selected_date');
+                            if (!$date) return;
 
-                            // ✔ Correct: use $set() with 2 arguments to save datetime values
-                            $set('start_time', "$date $start");
-                            $set('end_time', "$date $end");
-                        }) 
-                        ->reactive(),
-                         Select::make('therapist_id')
-                         ->required()
-                        ->label('Assign Therapist')
-                        ->hidden(function(callable $get){
-                            return $get('available_timeslots') == null;
+                            // set start_time/end_time as full datetimes (consistent with your DB)
+                            $set('start_time', Carbon::parse("$date $start")->toDateTimeString());
+                            $set('end_time',   Carbon::parse("$date $end")->toDateTimeString());
+
+                            // IMPORTANT: clear previously chosen therapist so select reloads
+                            $set('therapist_id', null);
                         })
-                        ->options(function (callable $get) {
-                            $date = $get('date');
+                        ->reactive(),
+                    Select::make('therapist_id')
+                        ->label('Therapist')
+                        ->options(Therapist::active()->pluck('name', 'id'))
+                        ->disableOptionWhen(function ($value, callable $get) {
+                            $date = $get('selected_date');
                             $start = $get('start_time');
                             $end = $get('end_time');
 
+                            // If date or time not selected yet → allow all therapists temporarily
                             if (!$date || !$start || !$end) {
-                                return Therapist::pluck('name', 'id');
+                                return false;
                             }
 
-                            return Therapist::all()
-                                ->filter(fn ($t) => $t->isAvailable($date, $start, $end))
-                                ->pluck('name', 'id');
+                            // Find therapist
+                            $therapist = Therapist::active()->find($value);
+
+                            // Disable if NOT available
+                            return !$therapist?->isAvailable($date, $start, $end);
                         })
+                        ->hidden(fn(callable $get)=>$get('available_timeslots') == null)
                         ->preload()
-                        ->columnSpan(1),
+                        ->reactive(),
 
                 ]),
+
 
             ])->columnSpan(1)
         ];

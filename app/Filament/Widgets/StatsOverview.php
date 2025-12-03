@@ -44,7 +44,7 @@ class StatsOverview extends StatsOverviewWidget
                 'All Time Revenue',
                 $overAllRevenue
             )->chart([1, 1000])
-                ->description('Total confirmed payments')
+                ->description('Alltime confirmed payments')
                 ->descriptionIcon('heroicon-o-check')
                 ->color('success'),
 
