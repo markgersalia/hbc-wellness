@@ -17,9 +17,9 @@ Your booking has been successfully confirmed.
 {{ $notes }}
 @endif
 
-@component('mail::button', ['url' => $booking_url ?? '#'])
+{{-- @component('mail::button', ['url' => $booking_url ?? '#'])
 View Booking
-@endcomponent
+@endcomponent --}}
 
 We look forward to serving you!  
 

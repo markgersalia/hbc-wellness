@@ -1,9 +1,9 @@
 @component('mail::message')
-# Booking Cancelled
+# Upcoming Booking Reminder
 
 Hello {{ $user_name ?? 'Customer' }},
 
-We regret to inform you that your booking has been canceled.  
+This is a friendly reminder that you have an upcoming booking:
 
 **Booking Number:** {{ $data['booking_number'] }}   
 **Service:** {{ $data['listing']['title'] ?? 'N/A' }}   
@@ -12,17 +12,20 @@ We regret to inform you that your booking has been canceled.
 **Status:** {{ ucfirst($data['status']) }}  
 **Price:** {{ isset($data['price']) ? 'PHP' . number_format($data['price'], 2) : 'N/A' }}  
 
+
 @if(!empty($notes))
 **Notes:**  
 {{ $data['notes'] }}
 @endif
 
+
+If you have any questions or concerns, please feel free to contact us at **{{ config('app.name') }}**.  We are here to assist you.
+
+
 {{-- @component('mail::button', ['url' => $booking_url ?? '#'])
 View Booking
 @endcomponent --}}
 
-We look forward to serving you!  
+Thank you for choosing **{{ config('app.name') }}**.
 
-Best regards,  
-**{{ config('app.name') }}**
 @endcomponent

@@ -17,9 +17,9 @@ Your booking has been successfully completed. We hope you had a great experience
 {{ $notes }}
 @endif
 
-@component('mail::button', ['url' => $booking_url ?? '#'])
+{{-- @component('mail::button', ['url' => $booking_url ?? '#'])
 View Booking
-@endcomponent
+@endcomponent --}}
 
 Thank you for choosing **{{ config('app.name') }}**. We hope to see you again soon!  
 
