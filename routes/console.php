@@ -11,5 +11,13 @@ Artisan::command('inspire', function () {
  // Run hourly from 8 AM to 5 PM on weekdays...
  
 
-  
-    Schedule::command('booking:reminders')->daily(); 
+ 
+ if(env('APP_ENV') == 'local'){
+    Schedule::command('booking:reminders')->everySecond();
+ }
+
+ if(env('APP_ENV') == 'production'){
+    Schedule::command('booking:reminders')->hourly()->between('8:00', '17:00')->everyFiveMinutes();
+}
+
+ 

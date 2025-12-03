@@ -74,6 +74,10 @@ class Booking extends Model implements Eventable
         return $this->hasMany(BookingPayment::class);
     }
 
+    public function scopeNotYetReminded($q){
+        $q->whereNull('reminded_at');
+    }
+
 
     public function totalPayment()
     {
@@ -164,7 +168,9 @@ class Booking extends Model implements Eventable
         // Before saving (both creating and updating)
         static::saving(function ($booking) {
             // Example: ensure name is title-cased
-            $booking->user_id = auth()->user()->id;
+            if(auth()->user()){
+                $booking->user_id = auth()->user()->id;
+            }
         });
     }
 

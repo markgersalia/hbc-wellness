@@ -29,12 +29,17 @@ class SendBookingReminders extends Command
         $reminderTime = $now->copy()->addHours(24); // adjust reminder period
 
         $bookings = Booking::confirmed()
+            ->notYetReminded()
             ->whereBetween('start_time', [$now, $reminderTime])
             ->get();
 
+ 
         foreach ($bookings as $booking) {
             $subject = config('app.name') . " Upcoming Booking Reminder – [#{$booking->booking_number}]";
             $template = 'mails.bookings.reminder'; // create a new reminder markdown email
+
+            $booking->reminded_at = $now;
+            $booking->save();
 
             Mail::to($booking->customer->email)
                 ->send(new BookingMailNotification($subject, $template, $booking->toArray()));
