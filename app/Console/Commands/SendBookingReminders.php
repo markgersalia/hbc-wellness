@@ -33,7 +33,7 @@ class SendBookingReminders extends Command
             ->get();
 
         foreach ($bookings as $booking) {
-            $subject = config('app.name') . " | Upcoming Booking Reminder – [#{$booking->booking_number}]";
+            $subject = config('app.name') . " Upcoming Booking Reminder – [#{$booking->booking_number}]";
             $template = 'mails.bookings.reminder'; // create a new reminder markdown email
 
             Mail::to($booking->customer->email)
