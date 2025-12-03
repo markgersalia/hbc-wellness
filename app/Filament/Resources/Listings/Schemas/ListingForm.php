@@ -24,21 +24,21 @@ class ListingForm
                     RichEditor::make('description')
                         
                         ->columnSpanFull(),
-                    Select::make('type')
-                        ->options([
-                            'room' => 'Room',
-                            'service' => 'Service',
-                            'event' => 'Event',
-                            'apartment' => 'Apartment',
-                            'house' => 'House',
-                            'studio' => 'Studio',
-                            'transport' => 'Transport',
-                            'equipment' => 'Equipment',
-                            'experience' => 'Experience',
-                            'misc' => 'Misc',
-                        ])
-                        ->default('service')
-                        ->required(),
+                    // Select::make('type')
+                    //     ->options([
+                    //         'room' => 'Room',
+                    //         'service' => 'Service',
+                    //         'event' => 'Event',
+                    //         'apartment' => 'Apartment',
+                    //         'house' => 'House',
+                    //         'studio' => 'Studio',
+                    //         'transport' => 'Transport',
+                    //         'equipment' => 'Equipment',
+                    //         'experience' => 'Experience',
+                    //         'misc' => 'Misc',
+                    //     ])
+                    //     ->default('service')
+                    //     ->required(),
                     TextInput::make('price')
                         ->numeric()
                         ->prefix('PHP'), 
