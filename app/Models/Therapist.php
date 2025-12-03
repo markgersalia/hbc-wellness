@@ -11,7 +11,7 @@ class Therapist extends Model
     protected $fillable = ['image', 'name', 'bio', 'availability', 'branch_id', 'email', 'phone', 'is_active'];
 
     protected $casts = [
-        'boolean'=>'is_active'
+        'boolean' => 'is_active'
     ];
 
     public function bookings()
@@ -19,25 +19,50 @@ class Therapist extends Model
         return $this->hasMany(Booking::class);
     }
 
-    public function scopeActive($q){
+    public function scopeActive($q)
+    {
         return $q->where('is_active', 1);
     }
 
-    public function isAvailable($date, $startTime, $endTime)
-    {
-        $start = Carbon::parse($startTime);
-        $end   = Carbon::parse($endTime);
+    // public function isAvailable($date, $startTime, $endTime)
+    // {
+    //     $start = Carbon::parse($startTime);
+    //     $end   = Carbon::parse($endTime);
 
-        // Override date to avoid double-date issue
-        $start->setDate(Carbon::parse($date)->year, Carbon::parse($date)->month, Carbon::parse($date)->day);
-        $end->setDate(Carbon::parse($date)->year, Carbon::parse($date)->month, Carbon::parse($date)->day);
+    //     // Override date to avoid double-date issue
+    //     $start->setDate(Carbon::parse($date)->year, Carbon::parse($date)->month, Carbon::parse($date)->day);
+    //     $end->setDate(Carbon::parse($date)->year, Carbon::parse($date)->month, Carbon::parse($date)->day);
+
+    //     return !$this->bookings()
+    //         ->confirmed()
+    //         ->whereDate('start_time', $date)
+    //         ->where(function ($q) use ($start, $end) {
+    //             $q->where('start_time', '<', $end)
+    //                 ->where('end_time', '>', $start);
+    //         })
+    //         ->exists();
+    // }
+
+    public function isAvailable($date, $startTime, $endTime, $excludeBookingId = null)
+    {
+
+        $start = Carbon::parse($startTime);
+            $end   = Carbon::parse($endTime);
+
+        //     // Override date to avoid double-date issue
+            $start->setDate(Carbon::parse($date)->year, Carbon::parse($date)->month, Carbon::parse($date)->day);
+            $end->setDate(Carbon::parse($date)->year, Carbon::parse($date)->month, Carbon::parse($date)->day);
+
 
         return !$this->bookings()
+            ->when($excludeBookingId, fn($q) => $q->where('id', '!=', $excludeBookingId))
             ->confirmed()
             ->whereDate('start_time', $date)
             ->where(function ($q) use ($start, $end) {
-                $q->where('start_time', '<', $end)
-                    ->where('end_time', '>', $start);
+                $q->where(function ($q2) use ($start, $end) {
+                    $q2->where('start_time', '<', $end)
+                        ->where('end_time', '>', $start);
+                });
             })
             ->exists();
     }

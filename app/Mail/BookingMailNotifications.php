@@ -9,22 +9,16 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class BookingMailNotification extends Mailable
+class BookingMailNotifications extends Mailable
 {
     use Queueable, SerializesModels;
 
-    protected $mailSubject;
-    protected $template;
-    protected $data;
     /**
      * Create a new message instance.
      */
-    public function __construct($mailSubject, $template,$data)
+    public function __construct()
     {
         //
-        $this->mailSubject = $mailSubject;
-        $this->template = $template;
-        $this->data = $data;
     }
 
     /**
@@ -33,7 +27,7 @@ class BookingMailNotification extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: $this->mailSubject,
+            subject: 'Booking Mail Notifications',
         );
     }
 
@@ -41,10 +35,9 @@ class BookingMailNotification extends Mailable
      * Get the message content definition.
      */
     public function content(): Content
-    { 
+    {
         return new Content(
-            markdown: $this->template, 
-            with:['data'=>$this->data]
+            markdown: 'mails.bookings.created',
         );
     }
 

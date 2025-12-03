@@ -234,24 +234,21 @@ class BookingForm
                     Select::make('therapist_id')
                         ->label('Therapist')
                         ->options(Therapist::active()->pluck('name', 'id'))
-                        ->disableOptionWhen(function ($value, callable $get) {
+                        ->disableOptionWhen(function ($value, callable $get, $record = null) {
                             $date = $get('selected_date');
                             $start = $get('start_time');
                             $end = $get('end_time');
 
-                            // If date or time not selected yet → allow all therapists temporarily
-                            if (!$date || !$start || !$end) {
-                                return false;
-                            }
+                            if (!$date || !$start || !$end) return false;
 
-                            // Find therapist
                             $therapist = Therapist::active()->find($value);
 
-                            // Disable if NOT available
-                            return !$therapist?->isAvailable($date, $start, $end);
+                            // Exclude current booking ID from availability check
+                            return !$therapist?->isAvailable($date, $start, $end, $record?->id);
                         })
-                        ->hidden(fn(callable $get)=>$get('available_timeslots') == null)
+                        ->hidden(fn(callable $get) => $get('available_timeslots') == null)
                         ->preload()
+                        ->required()
                         ->reactive(),
 
                 ]),

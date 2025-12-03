@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Mail\BookingMailNotification;
 use App\Services\TimeslotService;
 use Carbon\Carbon;
 use Guava\Calendar\Contracts\Eventable;
 use Guava\Calendar\ValueObjects\CalendarEvent;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str as SupportStr;
 use Psy\Util\Str;
 
@@ -56,7 +58,8 @@ class Booking extends Model implements Eventable
         return $this->belongsTo(Customer::class);
     }
 
-    public function therapist(){
+    public function therapist()
+    {
         return $this->belongsTo(Therapist::class);
     }
 
@@ -98,8 +101,8 @@ class Booking extends Model implements Eventable
             ->title("{$this?->listing?->title} {$this?->title} {$this?->location} ")
             ->start($this->start_time)
             ->end($this->end_time)
-            ->extendedProp('customer_name', $this->customer->name) 
-            ->backgroundColor($this->getStatusColor()) 
+            ->extendedProp('customer_name', $this->customer->name)
+            ->backgroundColor($this->getStatusColor())
         ;
     }
 
@@ -109,6 +112,8 @@ class Booking extends Model implements Eventable
      */
     protected static function boot(): void
     {
+        
+
         parent::boot();
 
         // Before creating a new Customer
@@ -117,6 +122,45 @@ class Booking extends Model implements Eventable
             $booking->user_id = auth()->user()->id;
         });
 
+        static::updated(function ($booking) {
+            $appName = config('app.name');
+            $booking->load('listing', 'therapist');
+            // Check if the 'status' field was changed
+            if ($booking->isDirty('status')) {
+                $oldStatus = $booking->getOriginal('status');
+                $newStatus = $booking->status;
+                $statusMap = [
+                    'confirmed' => [
+                        'template' => 'mails.bookings.confirmed',
+                        'subject'  => " [$appName] Booking Confirmed #%s", // %s will be booking number
+                    ],
+                    'canceled' => [
+                        'template' => 'mails.bookings.canceled',
+                        'subject'  => " [$appName] Booking Canceled #%s",
+                    ],
+                    'completed' => [
+                        'template' => 'mails.bookings.completed',
+                        'subject'  => " [$appName] Booking Completed #%s",
+                    ],
+                ];
+
+                if (isset($statusMap[$booking->status])) {
+                    $template = $statusMap[$booking->status]['template'];
+                    $subject  = sprintf($statusMap[$booking->status]['subject'], $booking->booking_number);
+
+                    Mail::to($booking->customer->email)
+                        ->queue(new BookingMailNotification($subject, $template, $booking->toArray()));
+                }
+            }
+        });
+
+
+        static::created(function ($booking) {
+            $subject = "[".config('app.name') . "] Booking Created – Pending Confirmation #{$booking->booking_number}";
+            $template = 'mails.bookings.created';
+            $booking->load('listing', 'therapist');
+            Mail::to($booking->customer->email)->queue(new BookingMailNotification($subject, $template, $booking->toArray()));
+        });
         // Before saving (both creating and updating)
         static::saving(function ($booking) {
             // Example: ensure name is title-cased
@@ -125,68 +169,68 @@ class Booking extends Model implements Eventable
     }
 
     public static function availableTimeslots($date)
-{
-    $slots = TimeslotService::generateForDay($date);
-    $bookings = self::whereDate('start_time', $date)->get();
+    {
+        $slots = TimeslotService::generateForDay($date);
+        $bookings = self::whereDate('start_time', $date)->get();
 
-    $available = [];
+        $available = [];
 
-    foreach ($slots as $slot) {
-        $overlap = false;
+        foreach ($slots as $slot) {
+            $overlap = false;
 
-        // foreach ($bookings as $booking) {
-        //     $bStart = Carbon::parse($booking->start_time);
-        //     $bEnd   = Carbon::parse($booking->end_time);
+            // foreach ($bookings as $booking) {
+            //     $bStart = Carbon::parse($booking->start_time);
+            //     $bEnd   = Carbon::parse($booking->end_time);
 
-        //     if ($slot['start'] < $bEnd && $slot['end'] > $bStart) {
-        //         $overlap = true;
-        //         break;
-        //     }
-        // }
+            //     if ($slot['start'] < $bEnd && $slot['end'] > $bStart) {
+            //         $overlap = true;
+            //         break;
+            //     }
+            // }
 
-        if (!$overlap) {
-            $label = $slot['label'];
-            $available[$label] = $label;
+            if (!$overlap) {
+                $label = $slot['label'];
+                $available[$label] = $label;
+            }
         }
+
+        return $available;
     }
 
-    return $available;
-}
+    // public static function availableTimeslots($date)
+    // {
+    //     $slots = TimeslotService::generateForDay($date); // returns ['start' => Carbon, 'end' => Carbon, 'label' => '...']
+    //     $bookings = self::whereDate('start_time', $date)->get();
 
-// public static function availableTimeslots($date)
-// {
-//     $slots = TimeslotService::generateForDay($date); // returns ['start' => Carbon, 'end' => Carbon, 'label' => '...']
-//     $bookings = self::whereDate('start_time', $date)->get();
+    //     $timeslots = [];
 
-//     $timeslots = [];
+    //     foreach ($slots as $slot) {
+    //         $slotStart = Carbon::parse($slot['start']);
+    //         $slotEnd = Carbon::parse($slot['end']);
 
-//     foreach ($slots as $slot) {
-//         $slotStart = Carbon::parse($slot['start']);
-//         $slotEnd = Carbon::parse($slot['end']);
+    //         $overlap = false;
 
-//         $overlap = false;
+    //         foreach ($bookings as $booking) {
+    //             $bStart = Carbon::parse($booking->start_time);
+    //             $bEnd = Carbon::parse($booking->end_time);
 
-//         foreach ($bookings as $booking) {
-//             $bStart = Carbon::parse($booking->start_time);
-//             $bEnd = Carbon::parse($booking->end_time);
+    //             if ($slotStart < $bEnd && $slotEnd > $bStart) {
+    //                 $overlap = true;
+    //                 break;
+    //             }
+    //         }
 
-//             if ($slotStart < $bEnd && $slotEnd > $bStart) {
-//                 $overlap = true;
-//                 break;
-//             }
-//         }
+    //         // Convert to 12-hour format for display
+    //         $label = $slotStart->format('g:i A') . ' - ' . $slotEnd->format('g:i A');
 
-//         // Convert to 12-hour format for display
-//         $label = $slotStart->format('g:i A') . ' - ' . $slotEnd->format('g:i A');
+    //         $timeslots[$label] = [
+    //             'label' => $label,
+    //             'disabled' => $overlap, // mark overlap slots as disabled
+    //         ];
+    //     }
 
-//         $timeslots[$label] = [
-//             'label' => $label,
-//             'disabled' => $overlap, // mark overlap slots as disabled
-//         ];
-//     }
-
-//     return $timeslots;
-// }
+    //     return $timeslots;
+    // }
 
 
 }
