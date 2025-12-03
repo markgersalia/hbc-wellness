@@ -134,15 +134,15 @@ class Booking extends Model implements Eventable
     foreach ($slots as $slot) {
         $overlap = false;
 
-        foreach ($bookings as $booking) {
-            $bStart = Carbon::parse($booking->start_time);
-            $bEnd   = Carbon::parse($booking->end_time);
+        // foreach ($bookings as $booking) {
+        //     $bStart = Carbon::parse($booking->start_time);
+        //     $bEnd   = Carbon::parse($booking->end_time);
 
-            if ($slot['start'] < $bEnd && $slot['end'] > $bStart) {
-                $overlap = true;
-                break;
-            }
-        }
+        //     if ($slot['start'] < $bEnd && $slot['end'] > $bStart) {
+        //         $overlap = true;
+        //         break;
+        //     }
+        // }
 
         if (!$overlap) {
             $label = $slot['label'];

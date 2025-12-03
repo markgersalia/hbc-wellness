@@ -148,7 +148,7 @@ class BookingForm
                         })
                         ->required()
                         ->reactive(),
-
+                         
                     ToggleButtons::make('available_timeslots')
                         ->hidden(function(callable $get){
                             return $get('selected_date') == null;
@@ -159,6 +159,42 @@ class BookingForm
                             if (!$date) return [];
 
                             return Booking::availableTimeslots($date);
+                        }) 
+                         ->disableOptionWhen(function (string $value, callable $get, $record = null) {
+                            $overlap = false;
+                            $date = $get('selected_date');
+                            if (!$date) return false;
+
+                            $bookings = Booking::whereDate('start_time', $date)->get();
+
+                            foreach ($bookings as $booking) {
+                                // Skip the current booking if editing
+                                if ($record && $booking->id === $record->id) {
+                                    continue;
+                                }
+
+                                $bStart = Carbon::parse($booking->start_time);
+                                $bEnd   = Carbon::parse($booking->end_time);
+
+                                [$slotStartStr, $slotEndStr] = explode(' - ', $value);
+                                $slotStart = Carbon::parse("$date $slotStartStr");
+                                $slotEnd   = Carbon::parse("$date $slotEndStr");
+
+                                if ($slotStart < $bEnd && $slotEnd > $bStart) {
+                                    $overlap = true;
+                                    break;
+                                }
+                            }
+
+                            return $overlap; // true = disable this option
+                        })
+                         ->afterStateHydrated(function ($state, callable $set, callable $get, $record) {
+                            if (!$record || !$record->start_time || !$record->end_time) return;
+
+                            $start = Carbon::parse($record->start_time)->format('H:i');
+                            $end   = Carbon::parse($record->end_time)->format('H:i');
+
+                            $set('available_timeslots', "$start - $end");
                         })
                         ->afterStateUpdated(function ($state, callable $set, callable $get) {
                             if (!$state) {
@@ -173,8 +209,7 @@ class BookingForm
                             // ✔ Correct: use $set() with 2 arguments to save datetime values
                             $set('start_time', "$date $start");
                             $set('end_time', "$date $end");
-                        })
-                        ->inline()
+                        }) 
                         ->reactive(),
                          Select::make('therapist_id')
                          ->required()
