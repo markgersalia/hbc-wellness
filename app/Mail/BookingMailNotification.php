@@ -8,6 +8,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Mail\Mailables\Attachment;
 
 class BookingMailNotification extends Mailable
 {
@@ -54,7 +55,12 @@ class BookingMailNotification extends Mailable
      * @return array<int, \Illuminate\Mail\Mailables\Attachment>
      */
     public function attachments(): array
-    {
-        return [];
+    { 
+        if($this->data['status'] != 'confirmed'){
+            return [];
+        }
+        return [
+                Attachment::fromPath($this->data['invoice']['file_path']),
+        ];
     }
 }

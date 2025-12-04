@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Invoices\Schemas;
 
 use App\Models\Rental;
-use App\Models\User;
+use App\Models\Invoice;
 use App\Enums\PaymentStatus;
 use App\Models\Booking;
 use Coolsam\Flatpickr\Forms\Components\Flatpickr;
@@ -148,15 +148,12 @@ class InvoiceForm
                                     ->columnSpan(1),
                                 TextInput::make('invoice_number')
                                     ->default(function () {
-                                        $latestInvoice = \App\Models\Invoice::latest('id')->first();
-                                        $nextNumber = $latestInvoice ? $latestInvoice->id + 1 : 1;
-
-                                        return 'INV-' . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
+                                      return Invoice::generateInvoiceNumber();
                                     })
                                     ->required(),
-                                Flatpickr::make('invoice_date')
+                                DatePicker::make('invoice_date')
                                     ->required(),
-                                Flatpickr::make('due_date')
+                                DatePicker::make('due_date')
                             ])
                             ->collapsible(),
 

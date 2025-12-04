@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Mail\BookingMailNotification;
+use App\Services\InvoiceGenerateService;
 use App\Services\TimeslotService;
 use Carbon\Carbon;
 use Guava\Calendar\Contracts\Eventable;
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str as SupportStr;
+use LaravelDaily\Invoices\Classes\Buyer;
 use Psy\Util\Str;
 
 class Booking extends Model implements Eventable
@@ -93,9 +95,14 @@ class Booking extends Model implements Eventable
     {
         return $q->where('status', 'confirmed');
     }
+
     public function scopeCompleted($q)
     {
         return $q->where('status', 'completed');
+    }
+
+    public function invoice(){
+        return $this->hasOne(Invoice::class);
     }
 
     public function toCalendarEvent(): CalendarEvent
@@ -128,9 +135,10 @@ class Booking extends Model implements Eventable
 
         static::updated(function ($booking) {
             $appName = config('app.name');
-            $booking->load('listing', 'therapist');
+            $booking->load('listing', 'therapist','invoice');
             // Check if the 'status' field was changed
             if ($booking->isDirty('status')) {
+                 
                 $oldStatus = $booking->getOriginal('status');
                 $newStatus = $booking->status;
                 $statusMap = [
@@ -153,8 +161,9 @@ class Booking extends Model implements Eventable
                     $subject  = sprintf($statusMap[$booking->status]['subject'], $booking->booking_number);
 
                     Mail::to($booking->customer->email)
-                        ->queue(new BookingMailNotification($subject, $template, $booking->toArray()));
+                        ->send(new BookingMailNotification($subject, $template, $booking->toArray()));
                 }
+
             }
         });
 
@@ -164,6 +173,25 @@ class Booking extends Model implements Eventable
             $template = 'mails.bookings.created';
             $booking->load('listing', 'therapist');
             Mail::to($booking->customer->email)->queue(new BookingMailNotification($subject, $template, $booking->toArray()));
+
+             $item = [[
+                            'name'=>$booking->listing->title,
+                            'price_per_unit'=>$booking->price,
+                            'quantity'=>1,
+                            'total'=>1 * $booking->price,
+                    ]];
+                    $invoice = $booking->invoice()->create([
+                        'invoice_number' => Invoice::generateInvoiceNumber(),
+                        'customer_id'=>$booking->customer->id,
+                        'status'=>'pending',
+                        'amount'=>$booking->price,
+                        'items' => $item,
+                        'invoice_date'=>now(),
+                    ]);
+
+                    $invoice->file_path = (new InvoiceGenerateService)->generateInvoice($invoice);
+                    $invoice->save();
+
         });
         // Before saving (both creating and updating)
         static::saving(function ($booking) {

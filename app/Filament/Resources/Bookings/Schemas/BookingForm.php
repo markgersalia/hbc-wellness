@@ -230,9 +230,13 @@ class BookingForm
                             // IMPORTANT: clear previously chosen therapist so select reloads
                             $set('therapist_id', null);
                         })
+                        ->dehydrated(false)
+                        ->validatedWhenNotDehydrated(false)
                         ->reactive(),
                     Select::make('therapist_id')
                         ->label('Therapist')
+                            ->relationship('therapist', 'name')
+
                         ->options(Therapist::active()->pluck('name', 'id'))
                         ->disableOptionWhen(function ($value, callable $get, $record = null) {
                             $date = $get('selected_date');
@@ -246,9 +250,12 @@ class BookingForm
                             // Exclude current booking ID from availability check
                             return !$therapist?->isAvailable($date, $start, $end, $record?->id);
                         })
-                        ->hidden(fn(callable $get) => $get('available_timeslots') == null)
+                        // ->hidden(fn(callable $get) => $get('available_timeslots') == null)
                         ->preload()
-                        ->required()
+                        ->required(fn ($record) => $record === null)
+                        ->dehydrated(false)
+                        ->validatedWhenNotDehydrated(false)
+
                         ->reactive(),
 
                 ]),

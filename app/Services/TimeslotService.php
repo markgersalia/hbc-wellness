@@ -2,7 +2,8 @@
 
 namespace App\Services;
 
-use Carbon\Carbon; class TimeslotService
+use Carbon\Carbon; 
+class TimeslotService
 {
     public static function generateForDay($date, $interval = 60, $start = '09:00', $end = '17:00')
     {
