@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Bookings\Tables;
 
 use App\Filament\Resources\BookingPayments\BookingPaymentResource;
+use App\PaymentStatus;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -12,6 +13,7 @@ use Filament\Actions\ViewAction;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 class BookingsTable
@@ -22,6 +24,8 @@ class BookingsTable
             ->columns(self::schema())
             ->filters([
                 //
+                SelectFilter::make('payment_status')
+                ->options(PaymentStatus::class)
             ])
             ->recordActions([
                 ViewAction::make(),

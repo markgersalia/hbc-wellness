@@ -33,6 +33,7 @@ class Booking extends Model implements Eventable
         'price',
         'type',
         'location',
+        'payment_status'
     ];
 
 

@@ -28,12 +28,19 @@ class StatsOverview extends StatsOverviewWidget
         $endDate = $this->pageFilters['endDate'] ?? null;
         $revenue = BookingPayment::query()
             ->paid()
+            ->whereHas('booking', function ($query) {
+                $query->completed();
+            })
             ->sum('amount');
         $revenueThisMonth = BookingPayment::query()
             ->where('created_at', '>=', now()->startOfMonth())
+
+            ->whereHas('booking', function ($query) {
+                $query->completed();
+            })
             ->paid()
             ->sum('amount');
-            
+
         $completedBooking = Booking::query()
             ->completed()
             ->count();
@@ -52,7 +59,7 @@ class StatsOverview extends StatsOverviewWidget
                 'Revenue This Month',
                 $revenueThisMonth
             )
-                ->description('Payments this month') 
+                ->description('Payments this month')
                 ->descriptionIcon('heroicon-o-check')
                 ->color('success'),
 
@@ -60,7 +67,7 @@ class StatsOverview extends StatsOverviewWidget
                 'Total Bookings',
                 Booking::query()->count()
             )
-                ->description($completedBooking.' completed')
+                ->description($completedBooking . ' completed')
                 // ->color('primary')
                 ->descriptionIcon('heroicon-o-calendar-days'),
             // ->color('primary'),
@@ -71,10 +78,10 @@ class StatsOverview extends StatsOverviewWidget
                 Customer::query()
                     ->count()
             )
-                ->description(Customer::whereHas('bookings',function($q){
+                ->description(Customer::whereHas('bookings', function ($q) {
                     $q->confirmed();
                 })->count() . ' has active booking')
-                ->descriptionIcon('heroicon-o-calendar') 
+                ->descriptionIcon('heroicon-o-calendar')
         ];
     }
 }

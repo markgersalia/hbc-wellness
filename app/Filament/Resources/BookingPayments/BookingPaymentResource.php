@@ -9,6 +9,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
@@ -36,9 +37,11 @@ class BookingPaymentResource extends Resource
                 Select::make('payment_method')
                     ->options(['card' => 'Card', 'bank_transfer' => 'Bank transfer', 'cash' => 'Cash'])
                     ->required(),
-                Select::make('payment_status')
-                    ->options(['pending' => 'Pending', 'paid' => 'Paid', 'failed' => 'Failed'])
-                    ->required(),
+                Hidden::make('status')
+                    // ->options(['pending' => 'Pending', 'paid' => 'Paid', 'failed' => 'Failed'])
+                    ->default('paid'),
+                    // ->hidden()
+                    // ->required(),
                 TextInput::make('payment_reference'),
                 TextInput::make('amount')
                     ->required()
@@ -59,6 +62,7 @@ class BookingPaymentResource extends Resource
                 TextColumn::make('payment_method')
                     ->badge(),
                 TextColumn::make('payment_status')
+                
                     ->badge(),
                 TextColumn::make('payment_reference')
                     ->searchable(),

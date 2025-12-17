@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
@@ -60,8 +61,8 @@ class BookingForm
                                 $set('status', 'pending');
                             }
                         })
+                        ->columnSpan(1)
                         ->required(),
-
 
                     Group::make([
                         TextInput::make('title')

@@ -24,9 +24,17 @@ class EditBooking extends EditRecord
                 ->schema(BookingPaymentResource::schema())
                 ->action(function ($record, array $data): void {
                     // ...
- 
                     $record->payments()->create($data);
-                })->after(function () {
+
+                    $totalPaid = $data['amount'];
+                    if ($totalPaid < $record->price) {
+                        $record->update(['payment_status' => 'partially_paid']);
+                    } 
+                    else {
+                        $record->update(['payment_status' => 'paid']);
+                    }
+
+                    })->after(function () {
                         $this->dispatch('paymentsRelationManager');
                     })
                     
