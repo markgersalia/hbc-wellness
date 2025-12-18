@@ -79,9 +79,9 @@ class AdminPanelProvider extends PanelProvider
             ->authGuard('web')
             // ->topNavigation(true)
             
-            // ->brandLogo(asset('images/logo.jpg'))
+            ->brandLogo(asset('images/logo.jpg'))
             ->brandLogoHeight('50px')
-        ->favicon(asset('images/logo.jpg'))  
+            ->favicon(asset('images/logo.jpg'))  
 
             ;
     }

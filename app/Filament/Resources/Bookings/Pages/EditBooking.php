@@ -10,6 +10,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\EditRecord;
+use Filament\Support\Colors\Color;
 
 class EditBooking extends EditRecord
 {
@@ -18,27 +19,42 @@ class EditBooking extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            ViewAction::make(),
-            DeleteAction::make(),
-             Action::make('Make Payment')
+            Action::make('Confirm Booking')
+            ->color(Color::Blue)
+            ->visible(function($record){
+                return $record->status == 'pending';
+            }),
+            Action::make('Cancel Booking')
+            ->visible(function($record){
+                return $record->status == 'pending' || $record->status == 'confirmed';
+            })
+            ->color('danger'),
+            // ViewAction::make(),
+            Action::make('Make Payment')
                 ->schema(BookingPaymentResource::schema())
+                ->hidden(function ($record) {
+                    return $record->payment_status == 'paid';
+                })
                 ->action(function ($record, array $data): void {
                     // ...
+                    $data['payment_status'] = 'paid';
                     $record->payments()->create($data);
 
                     $totalPaid = $data['amount'];
-                    if ($totalPaid < $record->price) {
+                    $balance = $record->balance();
+
+                    if ($totalPaid < $balance) {
                         $record->update(['payment_status' => 'partially_paid']);
-                    } 
-                    else {
+                    } else {
                         $record->update(['payment_status' => 'paid']);
                     }
+                })->after(function () {
+                    $this->dispatch('paymentsRelationManager');
+                })
+                ->color(Color::Green),
 
-                    })->after(function () {
-                        $this->dispatch('paymentsRelationManager');
-                    })
-                    
-                
+
+            DeleteAction::make(),
         ];
     }
 }

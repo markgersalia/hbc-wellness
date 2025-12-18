@@ -84,12 +84,12 @@ class Booking extends Model implements Eventable
 
     public function totalPayment()
     {
-        return $this->payments()->where('status', 'paid')->sum('amount');
+        return $this->payments()->where('payment_status', 'paid')->sum('amount');
     }
 
     public function balance()
     {
-        return $this->listing->price - $this->totalPayment();
+        return $this->price - $this->totalPayment();
     }
 
     public function scopeConfirmed($q)

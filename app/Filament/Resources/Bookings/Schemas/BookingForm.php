@@ -7,11 +7,11 @@ use App\Models\Booking;
 use App\Models\Customer;
 use App\Models\Listing;
 use App\Models\Therapist;
+use App\PaymentStatus;
 use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
@@ -22,6 +22,9 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Storage;
+use Filament\Infolists\Components\TextEntry;
+use Illuminate\Support\Str;
+
 
 class BookingForm
 {
@@ -36,6 +39,46 @@ class BookingForm
     {
         return [
             Group::make([
+                Section::make('Booking Status')->schema([
+                    Select::make('status')
+                        ->options([
+                            'pending' => 'Pending',
+                            'confirmed' => 'Confirmed',
+                            'canceled' => 'Canceled',
+                            'completed' => 'Completed',
+                        ])
+                        
+                        ->afterStateHydrated(function ($state, callable $set) {
+                            if (!$state) {
+                                $set('status', 'pending');
+                            }
+                        })
+                        ->columnSpan(1)
+                        ->required(),
+                    TextEntry::make('payment_status')
+                        // ->badge()
+                        ->formatStateUsing(function ($state, $record) {
+                            $status = Str::of($state)->replace('_', ' ')->title();
+                            $balance = number_format($record->balance() ?? 0, 2);
+
+                            return "{$status} (₱{$balance} Balance)";
+                        })
+
+                        ->color(fn(string $state): string => match ($state) {
+                            'partially_paid' => 'danger',
+                            'pending' => 'warning',
+                            'paid' => 'success',
+                            'failed' => 'danger',
+                        }),
+                    // TextEntry::make('payment_status')->value('Asdasd'),
+                    // ->options(PaymentStatus::class)
+                    // ->afterStateHydrated(function ($state, callable $set) {
+                    //     if (!$state) {
+                    //         $set('status', 'pending');
+                    //     }
+                    // })
+                    // ->columnSpan(1) 
+                ])->columns(2),
                 Section::make('Booking Information')->schema([
                     TextInput::make('booking_number')
                         ->label('Booking Number')
@@ -49,20 +92,8 @@ class BookingForm
                                 $set('booking_number', 'BK-' . str_pad($nextNumber, 5, '0', STR_PAD_LEFT));
                             }
                         }),
-                    Select::make('status')
-                        ->options([
-                            'pending' => 'Pending',
-                            'confirmed' => 'Confirmed',
-                            'canceled' => 'Canceled',
-                            'completed' => 'Completed',
-                        ])
-                        ->afterStateHydrated(function ($state, callable $set) {
-                            if (!$state) {
-                                $set('status', 'pending');
-                            }
-                        })
-                        ->columnSpan(1)
-                        ->required(),
+
+
 
                     Group::make([
                         TextInput::make('title')
@@ -134,7 +165,14 @@ class BookingForm
                         ->columnSpanFull(),
                 ])->columns(2),
 
-            ])->columnSpan(2),
+            ])->columnSpan(2)
+
+                ->disabled(function ($record) {
+                    if (!$record) {
+                        return false;
+                    }
+                    return $record->status == 'confirmed' || $record->status == 'completed';
+                }),
             Group::make([
                 Section::make([
                     DatePicker::make('selected_date')
@@ -236,7 +274,7 @@ class BookingForm
                         ->reactive(),
                     Select::make('therapist_id')
                         ->label('Therapist')
-                            ->relationship('therapist', 'name')
+                        ->relationship('therapist', 'name')
 
                         ->options(Therapist::active()->pluck('name', 'id'))
                         ->disableOptionWhen(function ($value, callable $get, $record = null) {
@@ -253,7 +291,7 @@ class BookingForm
                         })
                         // ->hidden(fn(callable $get) => $get('available_timeslots') == null)
                         ->preload()
-                        ->required(fn ($record) => $record === null)
+                        ->required(fn($record) => $record === null)
                         ->dehydrated(false)
                         ->validatedWhenNotDehydrated(false)
 
@@ -263,6 +301,12 @@ class BookingForm
 
 
             ])->columnSpan(1)
+                ->disabled(function ($record) {
+                    if (!$record) {
+                        return false;
+                    }
+                    return $record->status == 'confirmed' || $record->status == 'completed';
+                })
         ];
     }
 }
