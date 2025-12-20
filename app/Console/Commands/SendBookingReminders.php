@@ -41,7 +41,7 @@ class SendBookingReminders extends Command
             $booking->save();
 
             Mail::to($booking->customer->email)
-                ->send(new BookingMailNotification($subject, $template, $booking->toArray()));
+                ->queue(new BookingMailNotification($subject, $template, $booking->toArray()));
 
             $this->info("Reminder sent for booking #{$booking->booking_number}");
         }
