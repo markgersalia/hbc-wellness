@@ -20,7 +20,7 @@ class BookingMailNotification extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct($mailSubject, $template,$data)
+    public function __construct($mailSubject, $template, $data)
     {
         //
         $this->mailSubject = $mailSubject;
@@ -42,10 +42,10 @@ class BookingMailNotification extends Mailable
      * Get the message content definition.
      */
     public function content(): Content
-    { 
+    {
         return new Content(
-            markdown: $this->template, 
-            with:['data'=>$this->data]
+            markdown: $this->template,
+            with: ['data' => $this->data]
         );
     }
 
@@ -55,12 +55,17 @@ class BookingMailNotification extends Mailable
      * @return array<int, \Illuminate\Mail\Mailables\Attachment>
      */
     public function attachments(): array
-    { 
-        if($this?->data['status'] != 'confirmed'){
+    {
+        if (!isset($this->data['status'])) { 
+            $this->data['status'] = 'pending';
+        }
+ 
+
+        if ($this?->data['status'] != 'confirmed') {
             return [];
         }
         return [
-                Attachment::fromPath($this->data['invoice']['file_path']),
+            Attachment::fromPath($this->data['invoice']['file_path']),
         ];
     }
 }

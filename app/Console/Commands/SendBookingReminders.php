@@ -24,15 +24,14 @@ class SendBookingReminders extends Command
     public function handle()
     {
         //
+        $now = Carbon::today(); // today 00:00:00
+        $reminderTime = $now->copy()->addDays(1)->endOfDay(); // 12:00 AM tomorrow 11:59:59 PM
 
-        $now = Carbon::now();
-        $reminderTime = $now->copy()->addHours(24); // adjust reminder period
 
         $bookings = Booking::confirmed()
             ->notYetReminded()
             ->whereBetween('start_time', [$now, $reminderTime])
             ->get();
-
  
         foreach ($bookings as $booking) {
             $subject = config('app.name') . " Upcoming Booking Reminder – [#{$booking->booking_number}]";

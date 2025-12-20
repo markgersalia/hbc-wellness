@@ -173,6 +173,9 @@ class Booking extends Model implements Eventable
             $subject = "[".config('app.name') . "] Booking Created – Pending Confirmation #{$booking->booking_number}";
             $template = 'mails.bookings.created';
             $booking->load('listing', 'therapist');
+            if(!$booking->status){
+                $booking->status = 'pending';
+            }
             Mail::to($booking->customer->email)->queue(new BookingMailNotification($subject, $template, $booking->toArray()));
 
              $item = [[
