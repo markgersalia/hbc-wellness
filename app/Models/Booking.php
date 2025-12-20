@@ -162,7 +162,7 @@ class Booking extends Model implements Eventable
                     $subject  = sprintf($statusMap[$booking->status]['subject'], $booking->booking_number);
 
                     Mail::to($booking->customer->email)
-                        ->queue(new BookingMailNotification($subject, $template, $booking->toArray()));
+                        ->send(new BookingMailNotification($subject, $template, $booking->toArray()));
                 }
 
             }
@@ -176,7 +176,7 @@ class Booking extends Model implements Eventable
             if(!$booking->status){
                 $booking->status = 'pending';
             }
-            Mail::to($booking->customer->email)->queue(new BookingMailNotification($subject, $template, $booking->toArray()));
+            Mail::to($booking->customer->email)->send(new BookingMailNotification($subject, $template, $booking->toArray()));
 
              $item = [[
                             'name'=>$booking->listing->title,
