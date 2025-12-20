@@ -50,7 +50,7 @@ class BookingForm
                                     'pending' => 'warning',
                                     'approved' => 'success',
                                     'cancelled' => 'danger',
-                                    'confirmed' => 'success',
+                                    'confirmed' => 'info',
                                     'completed' => 'success',
                                     default => 'gray',
                                 }),
@@ -238,7 +238,7 @@ class BookingForm
 
                                 $hasConflict = $therapist->bookings()
                                     ->confirmed()
-                                    ->completed()
+                                    // ->completed()
                                     ->whereDate('start_time', $date)
                                     ->when($record, fn($q) => $q->where('id', '!=', $record->id))
                                     ->where(function ($q) use ($slotStart, $slotEnd) {

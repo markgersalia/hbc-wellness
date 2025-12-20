@@ -56,7 +56,7 @@ class BookingMailNotification extends Mailable
      */
     public function attachments(): array
     { 
-        if($this->data['status'] != 'confirmed'){
+        if($this?->data['status'] != 'confirmed'){
             return [];
         }
         return [
