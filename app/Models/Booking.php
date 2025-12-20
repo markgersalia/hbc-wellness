@@ -110,7 +110,7 @@ class Booking extends Model implements Eventable
     {
         return CalendarEvent::make($this)
             ->action('edit')
-            ->title("{$this?->listing?->title} {$this?->title} {$this?->location} ")
+            ->title("{$this?->listing?->title} {$this?->title} ")
             ->start($this->start_time)
             ->end($this->end_time)
             ->extendedProp('customer_name', $this->customer->name)
@@ -230,6 +230,17 @@ class Booking extends Model implements Eventable
         }
 
         return $available;
+    }
+    
+
+    public function canAddPayment(){
+        $status = $this->status;
+        return ($status == 'pending' || $status == 'confirmed') && $this->payment_status != 'paid';
+    }
+
+    public function canComplete(){
+        $status = $this->status;
+        return ($status == 'confirmed' && $this->payment_status == 'paid') && $this->end_time <= now();;
     }
 
     // public static function availableTimeslots($date)

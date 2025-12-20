@@ -29,12 +29,7 @@ class BookingResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return BookingForm::configure($schema);
-    }
-
-    public static function infolist(Schema $schema): Schema
-    {
-        return BookingInfolist::configure($schema);
-    }
+    } 
 
     public static function table(Table $table): Table
     {
@@ -53,7 +48,7 @@ class BookingResource extends Resource
         return [
             'index' => ListBookings::route('/'),
             'create' => CreateBooking::route('/create'),
-            'view' => ViewBooking::route('/{record}'),
+            // 'view' => ViewBooking::route('/{record}'),
             'edit' => EditBooking::route('/{record}/edit'),
         ];
     }

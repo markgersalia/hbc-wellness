@@ -28,7 +28,7 @@ class BookingsTable
                 ->options(PaymentStatus::class)
             ])
             ->recordActions([
-                ViewAction::make(),
+                // ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make()->requiresConfirmation(),
                    Action::make('Make Payment')
@@ -49,7 +49,7 @@ class BookingsTable
     {
         return
             [
-                ImageColumn::make('listing.images'),
+                ImageColumn::make('listing.images')->label(""),
                 TextColumn::make('listing.title')
                     ->numeric() 
                     ->sortable(), 
@@ -67,7 +67,14 @@ class BookingsTable
                     ->dateTime()
                     ->sortable(),
                 TextColumn::make('status')
-                    ->badge(),
+                        ->badge()
+                        ->color(fn($state) => match ($state) {
+                            'pending' => 'warning',
+                            'approved' => 'success',
+                            'canceled' => 'danger',
+                            'completed' => 'success',
+                            default => 'gray',
+                        }),
                 TextColumn::make('user.name')
                     ->label("Processed By")
                     ->sortable(),

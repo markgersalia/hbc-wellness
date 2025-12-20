@@ -58,8 +58,7 @@ class PaymentsRelationManager extends RelationManager
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable() ,
                 TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
@@ -76,9 +75,9 @@ class PaymentsRelationManager extends RelationManager
             //     AssociateAction::make(),
             // ])
             ->recordActions([
-                EditAction::make(),
-                DissociateAction::make(),
-                DeleteAction::make(),
+                // EditAction::make(),
+                // DissociateAction::make(),
+                // DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

@@ -9,6 +9,7 @@ use App\Models\Listing;
 use App\Models\Therapist;
 use App\PaymentStatus;
 use Carbon\Carbon;
+use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Hidden;
@@ -23,6 +24,8 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Storage;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Icon;
+use Filament\Support\Colors\Color;
 use Illuminate\Support\Str;
 
 
@@ -40,21 +43,33 @@ class BookingForm
         return [
             Group::make([
                 Section::make('Booking Status')->schema([
-                    Select::make('status')
-                        ->options([
-                            'pending' => 'Pending',
-                            'confirmed' => 'Confirmed',
-                            'canceled' => 'Canceled',
-                            'completed' => 'Completed',
-                        ])
+                    
+                            TextEntry::make('status')
+                                ->badge()
+                                ->color(fn($state) => match ($state) {
+                                    'pending' => 'warning',
+                                    'approved' => 'success',
+                                    'cancelled' => 'danger',
+                                    'confirmed' => 'success',
+                                    'completed' => 'success',
+                                    default => 'gray',
+                                }),
+
+                    // Select::make('status')
+                    //     ->options([
+                    //         'pending' => 'Pending',
+                    //         'confirmed' => 'Confirmed',
+                    //         'canceled' => 'Canceled',
+                    //         'completed' => 'Completed',
+                    //     ])
                         
-                        ->afterStateHydrated(function ($state, callable $set) {
-                            if (!$state) {
-                                $set('status', 'pending');
-                            }
-                        })
-                        ->columnSpan(1)
-                        ->required(),
+                    //     ->afterStateHydrated(function ($state, callable $set) {
+                    //         if (!$state) {
+                    //             $set('status', 'pending');
+                    //         }
+                    //     })
+                    //     ->columnSpan(1)
+                    //     ->required(),
                     TextEntry::make('payment_status')
                         // ->badge()
                         ->formatStateUsing(function ($state, $record) {
@@ -78,7 +93,10 @@ class BookingForm
                     //     }
                     // })
                     // ->columnSpan(1) 
-                ])->columns(2),
+                ])->columns(2)
+                ->visible(function($record){
+                    return $record?->id ;
+                }),
                 Section::make('Booking Information')->schema([
                     TextInput::make('booking_number')
                         ->label('Booking Number')
@@ -220,6 +238,7 @@ class BookingForm
 
                                 $hasConflict = $therapist->bookings()
                                     ->confirmed()
+                                    ->completed()
                                     ->whereDate('start_time', $date)
                                     ->when($record, fn($q) => $q->where('id', '!=', $record->id))
                                     ->where(function ($q) use ($slotStart, $slotEnd) {

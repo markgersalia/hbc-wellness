@@ -2,9 +2,15 @@
 
 namespace App\Filament\Widgets;
 
+use App\Filament\Actions\BookingActions;
+use App\Filament\Resources\BookingPayments\BookingPaymentResource;
 use App\Filament\Resources\Bookings\Schemas\BookingForm;
 use App\Models\Booking;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
+use Filament\Support\Colors\Color;
 use Filament\Widgets\Widget;
 use Guava\Calendar\Contracts\ContextualInfo;
 use Guava\Calendar\Enums\CalendarViewType;
@@ -29,7 +35,7 @@ class CalendarWidget extends FilamentCalendarWidget
     // protected bool $eventResizeEnabled = true;
 
 
-    protected bool $eventDragEnabled = true;
+    // protected bool $eventDragEnabled = true;
 
 
     // public function getHeaderActions(): array
@@ -42,29 +48,101 @@ class CalendarWidget extends FilamentCalendarWidget
     //     ];
     // }  
     
-public function createBookingAction(): CreateAction
-{
-    return $this->createAction(\App\Models\Booking::class)
-        ->label('Create Booking')
-         ->fillForm(function (?ContextualInfo $info) { 
-            // You can now access contextual info from the calendar using the $info argument
-            if ($info instanceof DateClickInfo) {
-                   return [
-                    'start_time' => $info->date->toDateTimeString(),
-                    'end_time'   => $info->date->toDateTimeString(),
-                ];
-            }
-  
-        })
-        ->after(fn () => $this->refreshRecords());
-}
+
+    public function editBookingAction(): EditAction
+    {
+        return $this->editAction(\App\Models\Booking::class)
+            ->label('Edit Booking')
+           
+            ->extraModalFooterActions([
+                Action::make('saveAndCreateAnother')
+                    ->label('Save & Add Another')
+                    ->color('gray')
+                    ->action(function (array $data) {
+                        // Custom logic here
+                    }),
+            ])
+            ->extraModalFooterActions([ 
+                    BookingActions::complete(),
+                    BookingActions::confirm(),
+                    BookingActions::cancel(),
+                    BookingActions::makePayment() 
+            ])
+            ->after(fn() => $this->refreshRecords());
+    }
+
+    public function createBookingAction(): CreateAction
+    {
+        return $this->createAction(\App\Models\Booking::class)
+            ->label('Create Booking')
+            ->fillForm(function (?ContextualInfo $info) {
+                // You can now access contextual info from the calendar using the $info argument
+                if ($info instanceof DateClickInfo) {
+                    return [
+                        'start_time' => $info->date->toDateTimeString(),
+                        'end_time'   => $info->date->toDateTimeString(),
+                    ];
+                }
+            })->extraModalFooterActions([
+                Action::make('saveAndCreateAnother')
+                    ->label('Save & Add Another')
+                    ->color('gray')
+                    ->action(function (array $data) {
+                        // Custom logic here
+                    }),
+            ])
+            // ->extraModalFooterActions([
+            //     Action::make('Confirm Booking')
+            //     ->color(Color::Blue)
+            //     ->visible(function($record){
+            //         return $record->status == 'pending';
+            //     })->action(function($record){
+            //         $record->status = 'confirmed';
+            //         $record->save();
+            //     }),
+            //     Action::make('Cancel Booking')
+            //     ->visible(function($record){
+            //         return $record->status == 'pending' || $record->status == 'confirmed';
+            //     })->action(function($record){
+            //         $record->status = 'canceled';
+            //         $record->save();
+            //     })
+            //     ->color('danger'),
+            //     // ViewAction::make(),
+            //     Action::make('Make Payment')
+            //         ->schema(BookingPaymentResource::schema())
+            //         ->visible(function ($record) {
+            //             return $record->canAddPayment();
+            //         })
+            //         ->action(function ($record, array $data): void {
+            //             // ...
+            //             $data['payment_status'] = 'paid';
+            //             $record->payments()->create($data);
+
+            //             $totalPaid = $record->totalPayment();
+            //             $bookingPrice = $record->price;
+
+            //             if ($totalPaid < $bookingPrice) {
+            //                 $record->update(['payment_status' => 'partially_paid']);
+            //             } else {
+            //                 $record->update(['payment_status' => 'paid']);
+            //             }
+            //         })->after(function () {
+            //             $this->dispatch('paymentsRelationManager');
+            //         }),
+
+
+            //     DeleteAction::make(),
+            // ])
+            ->after(fn() => $this->refreshRecords());
+    }
     protected function getDateClickContextMenuActions(): array
     {
         return [
             $this->createBookingAction(),
             // Any other action you want
         ];
-    } 
+    }
 
     public function createFooAction(): CreateAction
     {
@@ -82,7 +160,7 @@ public function createBookingAction(): CreateAction
         // Access the updated dates using getter methods
         $newStart = $info->event->getStart();
         $newEnd = $info->event->getEnd();
-  
+
         // Update the event with the new start/end dates to persist the drag & drop
         $event->update([
             'start_time' => $newStart,
@@ -102,12 +180,12 @@ public function createBookingAction(): CreateAction
             ->whereDate('end_time', '>=', $info->start)
             ->whereDate('start_time', '<=', $info->end);
     }
-    
+
 
     protected function getEventClickContextMenuActions(): array
     {
         return [
-            $this->editAction(),
+            $this->editBookingAction(),
             $this->deleteAction(),
         ];
     }
