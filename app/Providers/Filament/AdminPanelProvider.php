@@ -58,10 +58,10 @@ class AdminPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ]) 
-            ->viteTheme('resources/css/filament/admin/theme.css')
+            // ->viteTheme('resources/css/filament/admin/theme.css')
             ->plugins([
                 FilamentShieldPlugin::make(), // ✅ register plugin
-                BriskTheme::make()
+                // BriskTheme::make()
             ])
             ->authMiddleware([
                 Authenticate::class,
