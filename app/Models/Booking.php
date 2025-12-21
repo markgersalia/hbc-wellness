@@ -10,6 +10,7 @@ use Guava\Calendar\Contracts\Eventable;
 use Guava\Calendar\ValueObjects\CalendarEvent;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str as SupportStr;
 use LaravelDaily\Invoices\Classes\Buyer;
@@ -161,8 +162,7 @@ class Booking extends Model implements Eventable
                     $template = $statusMap[$booking->status]['template'];
                     $subject  = sprintf($statusMap[$booking->status]['subject'], $booking->booking_number);
 
-                    Mail::to($booking->customer->email)
-                        ->send(new BookingMailNotification($subject, $template, $booking->toArray()));
+                    Mail::to($booking->customer->email)->send(new BookingMailNotification($subject, $template, $booking->toArray()));
                 }
 
             }
@@ -280,6 +280,12 @@ class Booking extends Model implements Eventable
 
     //     return $timeslots;
     // }
+
+    public static function clearBookingData(){
+        DB::table('bookings')->delete();
+        DB::table('booking_payments')->truncate();
+        DB::table('invoices')->truncate();
+    }
 
 
 }
