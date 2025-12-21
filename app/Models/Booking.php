@@ -283,8 +283,8 @@ class Booking extends Model implements Eventable
 
     public static function clearBookingData(){
         DB::table('bookings')->delete();
-        DB::table('booking_payments')->truncate();
-        DB::table('invoices')->truncate();
+        DB::table('booking_payments')->delete();
+        DB::table('invoices')->delete();
     }
 
 
