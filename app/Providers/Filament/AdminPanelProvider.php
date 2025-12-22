@@ -69,7 +69,7 @@ class AdminPanelProvider extends PanelProvider
             ->sidebarCollapsibleOnDesktop()
             ->subNavigationPosition(SubNavigationPosition::End)
             ->unsavedChangesAlerts() 
-            ->topbar(false)
+            // ->topbar(false)
             ->brandName(env('APP_NAME'))
             ->profile()
             ->spa()
