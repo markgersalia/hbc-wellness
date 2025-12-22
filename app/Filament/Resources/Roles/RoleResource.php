@@ -28,6 +28,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
+use UnitEnum;
 
 class RoleResource extends Resource
 {
@@ -39,7 +40,10 @@ class RoleResource extends Resource
     use HasShieldFormComponents;
 
     protected static ?string $recordTitleAttribute = 'name';
-
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Access Control';
+    }
     public static function form(Schema $schema): Schema
     {
         return $schema
