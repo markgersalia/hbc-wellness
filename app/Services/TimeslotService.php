@@ -19,7 +19,7 @@ class TimeslotService
             $slots[] = [
                 'start' => $slotStart,
                 'end'   => $slotEnd,
-                'label' => $slotStart->format('H:i') . " - " . $slotEnd->format('H:i')
+                'label' => $slotStart->format('h:i a') . " - " . $slotEnd->format('h:i a')
             ];
 
             $startTime->addMinutes($interval);

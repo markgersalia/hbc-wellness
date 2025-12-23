@@ -3,9 +3,16 @@
 namespace App\Filament\Actions;
 
 use App\Filament\Resources\BookingPayments\BookingPaymentResource as BookingPaymentsBookingPaymentResource;
+use App\Filament\Resources\Bookings\Schemas\BookingForm;
 use App\Models\Booking;
 use App\Models\BookingPaymentResource; // Ensure this is the correct path to your schema
+use App\Models\CustomerPostAssesment;
 use Filament\Actions\Action;
+use Filament\Forms\Components\MarkdownEditor;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Wizard\Step;
 use Filament\Support\Colors\Color;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Model;
@@ -21,20 +28,89 @@ class BookingActions
             ->action(function (Booking $record) {
                 $record->update(['status' => 'confirmed']);
             })
-            ->requiresConfirmation();
-    }
-    public static function complete(): Action
-    {
-        return Action::make('completeBooking')
-            ->label('Complete Booking')
-            ->color('success')
-            ->icon(Heroicon::Check)
-            ->visible(fn(Booking $record) => $record->canComplete())
-            ->action(function (Booking $record) {
-                $record->update(['status' => 'completed']);
+            ->after(function ($livewire) {
+                $livewire->refreshRecords();
             })
             ->requiresConfirmation();
     }
+
+    public static function complete(): Action
+    {
+        return Action::make('completeBooking') 
+            ->visible(function($record){
+                return $record->canComplete(); 
+            })
+            ->action(function ($record,$livewire,$data) {
+                   if (! $record->canComplete()) {
+                    // Show notification and stop execution
+                    Notification::make()
+                        ->title('Cannot complete booking')
+                        ->body('Either payment is not yet complete or conditions are not met.')
+                        ->danger()
+                        ->send();
+
+                    return; // stop the action
+                }
+                $data['booking_id'] = $record->id;
+                $data['customer_id'] = $record->customer_id;
+                
+                $record->update(['status' => 'completed']);
+                 CustomerPostAssesment::create($data);
+                    Notification::make()
+                    ->title('Booking successfully completed') 
+                    ->success()
+                    ->send();
+            // do whatever (save assessment, update booking, etc.)
+                // Send data to the next modal
+                if($data['require_followup']){ 
+                    $livewire->replaceMountedAction('createFollowupBookingAction',[
+                        'customer_id'=>$record->customer_id,
+                        'listing_id'=>$record->listing_id,
+                        'therapist_id'=>$record->therapist_id,
+                        'price'=>$record->price,
+                        'selected_date' => $data['next_session_date']
+                    ]);
+                }
+            }) 
+            ->icon(Heroicon::Check)
+            ->color('success')
+            ->after(function ($livewire) {
+                $livewire->refreshRecords();
+            })
+            ->steps(BookingForm::postAssessmentWizard());
+    }
+    // public static function complete(): Action
+    // {
+    //     return Action::make('completeBooking')
+    //         ->label('Complete Booking')
+    //         ->color('success')
+    //         ->icon(Heroicon::Check)
+    //         ->visible(function($record){
+    //             return $record->canComplete(); 
+    //         })
+    //         // ->visible(fn(Booking $record) => $record->canComplete())
+    //         ->action(function (Booking $record,$livewire) {
+    //             if (! $record->canComplete()) {
+    //                 // Show notification and stop execution
+    //                 Notification::make()
+    //                     ->title('Cannot complete booking')
+    //                     ->body('Either payment is not yet complete or conditions are not met.')
+    //                     ->danger()
+    //                     ->send();
+
+    //                 return; // stop the action
+    //             }
+    //             $record->update(['status' => 'completed']);
+
+
+    //         })
+    //         ->after(function ($livewire) {
+    //             $livewire->refreshRecords();
+    //         })
+
+    //         ->requiresConfirmation();
+    // }
+
 
     public static function cancel(): Action
     {
@@ -44,6 +120,9 @@ class BookingActions
             ->visible(fn(Booking $record) => in_array($record->status, ['pending', 'confirmed']))
             ->action(function (Booking $record) {
                 $record->update(['status' => 'canceled']);
+            })
+            ->after(function ($livewire) {
+                $livewire->refreshRecords();
             })
             ->requiresConfirmation();
     }
@@ -64,6 +143,10 @@ class BookingActions
                     : 'paid';
 
                 $record->update(['payment_status' => $status]);
+            })
+            
+            ->after(function ($livewire) {
+                $livewire->refreshRecords();
             });
     }
 }

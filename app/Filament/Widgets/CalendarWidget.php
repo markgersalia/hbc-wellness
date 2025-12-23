@@ -10,6 +10,7 @@ use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Schemas\Schema;
 use Filament\Support\Colors\Color;
 use Filament\Widgets\Widget;
 use Guava\Calendar\Contracts\ContextualInfo;
@@ -25,10 +26,11 @@ use Guava\Calendar\ValueObjects\DateSelectInfo;
 use Guava\Calendar\ValueObjects\EventClickInfo;
 use Guava\Calendar\ValueObjects\EventDropInfo;
 use Illuminate\Database\Eloquent\Model;
+use Livewire\Form;
 
 class CalendarWidget extends FilamentCalendarWidget
 {
-    // protected CalendarViewType $calendarView = CalendarViewType::ListWeek;
+    // protected CalendarViewType $calendarView = CalendarViewType::ListDay;
     protected bool $eventClickEnabled = true;
     protected bool $dateClickEnabled  = true;
     // protected bool $dateSelectEnabled = true;
@@ -47,7 +49,61 @@ class CalendarWidget extends FilamentCalendarWidget
     //             ) 
     //     ];
     // }  
-    
+    protected CalendarViewType $calendarView = CalendarViewType::ListDay;
+
+       
+public function mount(): void
+{
+    $this->calendarView = CalendarViewType::tryFrom(
+        session('calendar_view')
+    ) ?? CalendarViewType::ListDay;
+}
+
+protected $listeners = ['updateUserOverview' => '$refresh'];
+
+public function setView(CalendarViewType $view)
+{
+    session([
+        'calendar_view' => $view->value,
+    ]);
+
+    return $
+    // full page reload
+    // return redirect(request()->header('Referer'));
+}
+
+        public function getHeaderActions(): array
+        {
+            return [
+                Action::make('month')
+                    ->label('Month')
+                    ->action(fn () => $this->setView(CalendarViewType::DayGridMonth))
+                    ->color(fn () =>
+                        $this->calendarView === CalendarViewType::DayGridMonth
+                            ? 'primary'
+                            : 'gray'
+                    ),
+
+                Action::make('day')
+                    ->label('Day')
+                    ->action(fn () => $this->setView(CalendarViewType::TimeGridDay))
+                    ->color(fn () =>
+                        $this->calendarView === CalendarViewType::TimeGridDay
+                            ? 'primary'
+                            : 'gray'
+                    ),
+            ];
+        }
+       
+protected function getCalendarConfig(): array
+{
+    return [
+        'initialView' => $this->calendarView->value,
+        'headerToolbar' => false,
+    ];
+}
+
+
 
     public function editBookingAction(): EditAction
     {
@@ -63,7 +119,7 @@ class CalendarWidget extends FilamentCalendarWidget
                     }),
             ])
             ->extraModalFooterActions([ 
-                    BookingActions::complete(),
+                    BookingActions::complete(), 
                     BookingActions::confirm(),
                     BookingActions::cancel(),
                     BookingActions::makePayment() 
@@ -71,19 +127,44 @@ class CalendarWidget extends FilamentCalendarWidget
             ->after(fn() => $this->refreshRecords());
     }
 
+    public function createFollowupBookingAction():CreateAction{
+         return $this->createAction(\App\Models\Booking::class)
+            ->label('Add followup Booking')
+            ->extraModalFooterActions([
+                Action::make('saveAndCreateAnother')
+                    ->label('Save & Add Another')
+                    ->color('gray')
+                    ->action(function (array $data) {
+                        // Custom logic here
+                    }),
+            ])->mountUsing(function (Schema $form,$arguments) {
+                $form->fill($arguments);
+                // ...
+            })
+            ->after(fn() => $this->refreshRecords());
+    }
+
     public function createBookingAction(): CreateAction
     {
         return $this->createAction(\App\Models\Booking::class)
             ->label('Create Booking')
+             ->mountUsing(function (array $arguments, Form $form) {
+                    $form->fill([
+                        'customer_id'  => $arguments['customer_id'] ?? null,
+                        'listing_id'   => $arguments['listing_id'] ?? null,
+                        'therapist_id' => $arguments['therapist_id'] ?? null,
+                    ]);
+                })
             ->fillForm(function (?ContextualInfo $info) {
                 // You can now access contextual info from the calendar using the $info argument
                 if ($info instanceof DateClickInfo) {
                     return [
-                        'start_time' => $info->date->toDateTimeString(),
-                        'end_time'   => $info->date->toDateTimeString(),
+                        'start_time' => $info?->date?->toDateTimeString(),
+                        'end_time'   => $info?->date?->toDateTimeString(),
                     ];
                 }
-            })->extraModalFooterActions([
+            })
+            ->extraModalFooterActions([
                 Action::make('saveAndCreateAnother')
                     ->label('Save & Add Another')
                     ->color('gray')
@@ -185,6 +266,7 @@ class CalendarWidget extends FilamentCalendarWidget
     protected function getEventClickContextMenuActions(): array
     {
         return [
+             
             $this->editBookingAction(),
             $this->deleteAction(),
         ];

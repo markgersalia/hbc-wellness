@@ -11,4 +11,8 @@ class Customer extends Model
     public function bookings(){
         return $this->hasMany(Booking::class);
     }
+
+    public function post_assestments(){ 
+        return $this->hasMany(CustomerPostAssesment::class);
+    }
 }

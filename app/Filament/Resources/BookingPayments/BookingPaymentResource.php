@@ -32,20 +32,32 @@ class BookingPaymentResource extends Resource
             ->components(self::schema());
     }
 
-    public static function schema(){
-        return [   
-                Select::make('payment_method')
-                    ->options(['card' => 'Card', 'bank_transfer' => 'Bank transfer', 'cash' => 'Cash'])
-                    ->required(),
-                Hidden::make('status')
-                    // ->options(['pending' => 'Pending', 'paid' => 'Paid', 'failed' => 'Failed'])
-                    ->default('paid'),
-                    // ->hidden()
-                    // ->required(),
-                TextInput::make('payment_reference'),
-                TextInput::make('amount')
-                    ->required()
-                    ->numeric(),
+    public static function schema($balance = 0)
+    {
+        return [
+            
+            Select::make('payment_method')
+                ->options([
+                    'card' => 'Card',
+                    'bank_transfer' => 'Bank transfer',
+                    'cash' => 'Cash',
+                ])
+                ->required()
+                ->reactive(), // make the select reactive so dependent fields update
+
+            Hidden::make('status')
+                ->default('paid'),
+
+            TextInput::make('payment_reference')
+                ->label('Payment Reference')
+                ->visible(function (callable $get) {
+                    return $get('payment_method') !== 'cash';
+                })
+                ->reactive(), // important: updates visibility on change
+
+            TextInput::make('amount')
+                ->required()
+                ->numeric(),
         ];
     }
 
@@ -62,7 +74,7 @@ class BookingPaymentResource extends Resource
                 TextColumn::make('payment_method')
                     ->badge(),
                 TextColumn::make('payment_status')
-                
+
                     ->badge(),
                 TextColumn::make('payment_reference')
                     ->searchable(),

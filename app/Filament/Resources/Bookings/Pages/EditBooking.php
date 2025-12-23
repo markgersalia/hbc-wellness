@@ -24,7 +24,8 @@ class EditBooking extends EditRecord
             BookingActions::confirm(),
             BookingActions::cancel(),
             BookingActions::makePayment() ,
-
+            BookingActions::completeAndAddFollowUpCheckup() ,
+ 
 
             DeleteAction::make(),
         ];

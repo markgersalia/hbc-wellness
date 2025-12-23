@@ -78,6 +78,11 @@ class Booking extends Model implements Eventable
         return $this->hasMany(BookingPayment::class);
     }
 
+    public function post_assestment()
+    {
+        return $this->hasOne(CustomerPostAssesment::class);
+    }
+
     public function scopeNotYetReminded($q){
         $q->whereNull('reminded_at');
     }
@@ -178,7 +183,7 @@ class Booking extends Model implements Eventable
             }
             Mail::to($booking->customer->email)->queue(new BookingMailNotification($subject, $template, $booking->toArray()));
 
-             $item = [[
+                    $item = [[
                             'name'=>$booking->listing->title,
                             'price_per_unit'=>$booking->price,
                             'quantity'=>1,
@@ -243,7 +248,7 @@ class Booking extends Model implements Eventable
 
     public function canComplete(){
         $status = $this->status;
-        return ($status == 'confirmed' && $this->payment_status == 'paid') && $this->end_time <= now();;
+        return ($status == 'confirmed' && $this->payment_status == 'paid') ;
     }
 
     // public static function availableTimeslots($date)

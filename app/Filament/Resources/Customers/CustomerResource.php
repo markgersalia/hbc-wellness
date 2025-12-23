@@ -7,6 +7,7 @@ use App\Filament\Resources\Customers\Pages\EditCustomer;
 use App\Filament\Resources\Customers\Pages\ListCustomers;
 use App\Filament\Resources\Customers\Pages\ViewCustomer;
 use App\Filament\Resources\Customers\RelationManagers\BookingsRelationManager;
+use App\Filament\Resources\Customers\RelationManagers\PostAssestmentsRelationManager;
 use App\Filament\Resources\Customers\Schemas\CustomerForm;
 use App\Filament\Resources\Customers\Schemas\CustomerInfolist;
 use App\Filament\Resources\Customers\Tables\CustomersTable;
@@ -43,7 +44,7 @@ class CustomerResource extends Resource
     public static function getRelations(): array
     {
         return [
-            BookingsRelationManager::class
+            PostAssestmentsRelationManager::class
         ];
     }
     /**

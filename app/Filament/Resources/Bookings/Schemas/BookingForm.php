@@ -25,6 +25,8 @@ use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Storage;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Icon;
+use Filament\Schemas\Components\Wizard;
+use Filament\Schemas\Components\Wizard\Step;
 use Filament\Support\Colors\Color;
 use Illuminate\Support\Str;
 
@@ -43,17 +45,17 @@ class BookingForm
         return [
             Group::make([
                 Section::make('Booking Status')->schema([
-                    
-                            TextEntry::make('status')
-                                ->badge()
-                                ->color(fn($state) => match ($state) {
-                                    'pending' => 'warning',
-                                    'approved' => 'success',
-                                    'cancelled' => 'danger',
-                                    'confirmed' => 'info',
-                                    'completed' => 'success',
-                                    default => 'gray',
-                                }),
+
+                    TextEntry::make('status')
+                        ->badge()
+                        ->color(fn($state) => match ($state) {
+                            'pending' => 'warning',
+                            'approved' => 'success',
+                            'cancelled' => 'danger',
+                            'confirmed' => 'info',
+                            'completed' => 'success',
+                            default => 'gray',
+                        }),
 
                     // Select::make('status')
                     //     ->options([
@@ -62,7 +64,7 @@ class BookingForm
                     //         'canceled' => 'Canceled',
                     //         'completed' => 'Completed',
                     //     ])
-                        
+
                     //     ->afterStateHydrated(function ($state, callable $set) {
                     //         if (!$state) {
                     //             $set('status', 'pending');
@@ -94,9 +96,9 @@ class BookingForm
                     // })
                     // ->columnSpan(1) 
                 ])->columns(2)
-                ->visible(function($record){
-                    return $record?->id ;
-                }),
+                    ->visible(function ($record) {
+                        return $record?->id;
+                    }),
                 Section::make('Booking Information')->schema([
                     TextInput::make('booking_number')
                         ->label('Booking Number')
@@ -288,6 +290,7 @@ class BookingForm
                             // IMPORTANT: clear previously chosen therapist so select reloads
                             $set('therapist_id', null);
                         })
+                        ->required()
                         ->dehydrated(false)
                         ->validatedWhenNotDehydrated(false)
                         ->reactive(),
@@ -326,6 +329,76 @@ class BookingForm
                     }
                     return $record->status == 'confirmed' || $record->status == 'completed';
                 })
+        ];
+    }
+
+
+
+
+    public static function postAssessmentWizard(): array
+    {
+        return [
+            Step::make('Session Details')
+                ->schema([
+                    TextInput::make('primary_concern')
+                        ->columnSpanFull(),
+
+                    Select::make('listing_id')
+                        ->default(fn($record) => $record?->listing_id)
+                        ->relationship('listing', 'title')
+                        ->columnSpanFull(),
+
+                    DateTimePicker::make('start_time')
+                        ->default(fn($record) => $record?->start_time),
+
+                    DateTimePicker::make('end_time')
+                        ->default(fn($record) => $record?->end_time),
+                ])
+                ->columns(2),
+
+            Step::make('Vitals')
+                ->schema([
+                    TextInput::make('bp')->placeholder('120/80'),
+                    TextInput::make('pr')->numeric(),
+                    TextInput::make('o2')->numeric(),
+                ])
+                ->columns(3),
+
+            Step::make('Therapist Evaluation')
+                ->schema([
+                    Select::make('therapist_id')
+                        ->relationship('therapist', 'name')
+                        ->default(function ($record) {
+                            return $record->therapist_id;
+                        })
+                        ->searchable(),
+
+                    Select::make('therapist_rating')
+                        ->options([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
+
+                    TextInput::make('post_pain_rating')
+                        ->numeric()
+                        ->minValue(0)
+                        ->maxValue(10),
+                ]),
+
+            Step::make('Remarks')
+                ->schema([
+                    Toggle::make('require_followup')
+                        ->label('Require Follow-up Session')
+                        ->default(false)
+                        ->reactive(),
+
+                    DatePicker::make('next_session_date')
+                        ->label('Next Session Date')
+                        ->reactive()
+                        ->visible(fn($get) => $get('require_followup') === true),
+ 
+                    Textarea::make('client_remarks')
+                        ->rows(4)
+                        ->columnSpanFull(),
+                ]),
+
         ];
     }
 }

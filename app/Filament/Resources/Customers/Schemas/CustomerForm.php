@@ -26,9 +26,11 @@ class CustomerForm
                     ->email()
                     ->required(),
                 TextInput::make('phone')
+                    ->required()
                     ->tel(),
                 Textarea::make('address')
                     ->columnSpanFull(),
+                    
                 Toggle::make('is_vip')
                     ->required(),
             ];
