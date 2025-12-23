@@ -66,10 +66,9 @@ public function setView(CalendarViewType $view)
     session([
         'calendar_view' => $view->value,
     ]);
-
-    return $
+ 
     // full page reload
-    // return redirect(request()->header('Referer'));
+    return redirect(request()->header('Referer'));
 }
 
         public function getHeaderActions(): array
