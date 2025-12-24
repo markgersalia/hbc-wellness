@@ -34,7 +34,8 @@ class Booking extends Model implements Eventable
         'price',
         'type',
         'location',
-        'payment_status'
+        'payment_status',
+        'bed_id'
     ];
 
 
@@ -65,6 +66,10 @@ class Booking extends Model implements Eventable
     public function therapist()
     {
         return $this->belongsTo(Therapist::class);
+    }
+    public function bed()
+    {
+        return $this->belongsTo(Bed::class);
     }
 
 
@@ -138,6 +143,7 @@ class Booking extends Model implements Eventable
         static::creating(function ($booking) {
             // Generate a unique code
             $booking->user_id = auth()->user()->id;
+            
         });
 
         static::updated(function ($booking) {
@@ -174,7 +180,7 @@ class Booking extends Model implements Eventable
         });
 
 
-        static::created(function ($booking) {
+        static::created(function ($booking) { 
             $subject = "[".config('app.name') . "] Booking Created – Pending Confirmation #{$booking->booking_number}";
             $template = 'mails.bookings.created';
             $booking->load('listing', 'therapist');

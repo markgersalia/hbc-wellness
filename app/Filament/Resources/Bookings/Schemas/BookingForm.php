@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Bookings\Schemas;
 
 use App\Filament\Resources\Customers\Schemas\CustomerForm;
+use App\Models\Bed;
 use App\Models\Booking;
 use App\Models\Customer;
 use App\Models\Listing;
@@ -262,8 +263,8 @@ class BookingForm
                         ->afterStateHydrated(function ($state, callable $set, callable $get, $record) {
                             if (!$record || !$record->start_time || !$record->end_time) return;
 
-                            $start = Carbon::parse($record->start_time)->format('H:i');
-                            $end   = Carbon::parse($record->end_time)->format('H:i');
+                            $start = Carbon::parse($record->start_time)->format('h:i a');
+                            $end   = Carbon::parse($record->end_time)->format('h:i a');
 
                             $set('available_timeslots', "$start - $end");
                         })
@@ -315,6 +316,28 @@ class BookingForm
                         ->preload()
                         ->required(fn($record) => $record === null)
                         ->dehydrated(false)
+                        ->validatedWhenNotDehydrated(false) 
+                        ->reactive(),
+                    Select::make('bed_id')
+                        ->label('Bed')
+                        ->relationship('bed', 'name') 
+                        ->options(Bed::available()->pluck('name', 'id'))
+                        ->disableOptionWhen(function ($value, callable $get, $record = null) {
+                            $date = $get('selected_date');
+                            $start = $get('start_time');
+                            $end = $get('end_time');
+
+                            if (!$date || !$start || !$end) return false;
+
+                            $bed = Bed::available()->find($value);
+
+                            // Exclude current booking ID from availability check
+                            return !$bed?->isAvailable($date, $start, $end, $record?->id);
+                        })
+                        // ->hidden(fn(callable $get) => $get('available_timeslots') == null)
+                        ->preload()
+                        ->required(fn($record) => $record === null)
+                        // ->dehydrated(false)
                         ->validatedWhenNotDehydrated(false)
 
                         ->reactive(),
