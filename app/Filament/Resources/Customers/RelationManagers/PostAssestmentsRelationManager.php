@@ -16,6 +16,7 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\Wizard;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -28,7 +29,7 @@ class PostAssestmentsRelationManager extends RelationManager
     public function form(Schema $schema): Schema
     {
         return $schema
-            ->components(BookingForm::postAssessmentWizard());
+            ->components(Wizard::make(BookingForm::postAssessmentWizard())->columnSpanFull());
     }
 
     public function infolist(Schema $schema): Schema

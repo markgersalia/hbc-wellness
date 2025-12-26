@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Therapists;
 
+use App\Filament\Clusters\Therapist\TherapistCluster;
 use App\Filament\Resources\Therapists\Pages\CreateTherapist;
 use App\Filament\Resources\Therapists\Pages\EditTherapist;
 use App\Filament\Resources\Therapists\Pages\ListTherapists;
@@ -20,8 +21,9 @@ class TherapistResource extends Resource
     protected static ?string $model = Therapist::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::Users;
+    protected static ?string $cluster = TherapistCluster::class;
 
-    protected static UnitEnum|string|null $navigationGroup = 'Booking Management';
+
     protected static ?string $recordTitleAttribute = 'therapist';
 
     public static function form(Schema $schema): Schema

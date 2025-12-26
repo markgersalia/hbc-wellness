@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Listings;
 
+use App\Filament\Clusters\Booking\BookingCluster;
 use App\Filament\Resources\Listings\Pages\CreateListing;
 use App\Filament\Resources\Listings\Pages\EditListing;
 use App\Filament\Resources\Listings\Pages\ListListings;
@@ -24,7 +25,9 @@ class ListingResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::ListBullet;
     
-    protected static UnitEnum|string|null $navigationGroup = 'Booking Management';
+    protected static ?string $cluster = BookingCluster::class;
+
+    // protected static UnitEnum|string|null $navigationGroup = 'Booking Management';
     public static function canAccess(): bool
 {
     return config('booking.has_listings') === true;

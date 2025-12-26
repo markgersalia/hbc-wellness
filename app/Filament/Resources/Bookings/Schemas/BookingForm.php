@@ -391,10 +391,10 @@ class BookingForm
                 ->schema([
                     Select::make('therapist_id')
                         ->relationship('therapist', 'name')
-                        ->default(function ($record) {
-                            return $record->therapist_id;
-                        })
-                        ->searchable(),
+                        // ->default(function ($record) {
+                        //     return $record?->therapist_id;
+                        // })\
+                        ,
 
                     Select::make('therapist_rating')
                         ->options([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),

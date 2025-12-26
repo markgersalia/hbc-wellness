@@ -28,8 +28,10 @@ class BookingActions
             ->action(function (Booking $record) {
                 $record->update(['status' => 'confirmed']);
             })
-            ->after(function ($livewire) {
-                $livewire->refreshRecords();
+            ->after(function ($livewire) { 
+                if($livewire){
+                    $livewire->refreshRecords();
+                }
             })
             ->requiresConfirmation();
     }
@@ -75,7 +77,9 @@ class BookingActions
             ->icon(Heroicon::Check)
             ->color('success')
             ->after(function ($livewire) {
-                $livewire->refreshRecords();
+                if($livewire){
+                    $livewire->refreshRecords();
+                }
             })
             ->steps(BookingForm::postAssessmentWizard());
     }

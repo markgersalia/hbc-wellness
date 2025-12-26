@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Customers;
 
+use App\Filament\Resources\CustomerResource\Widgets\CustomerStats;
 use App\Filament\Resources\Customers\Pages\CreateCustomer;
 use App\Filament\Resources\Customers\Pages\EditCustomer;
 use App\Filament\Resources\Customers\Pages\ListCustomers;
@@ -62,6 +63,13 @@ class CustomerResource extends Resource
             'create' => CreateCustomer::route('/create'),
             'view' => ViewCustomer::route('/{record}'),
             'edit' => EditCustomer::route('/{record}/edit'),
+        ];
+    }
+
+     public static function getWidgets(): array
+    {
+        return [
+            CustomerStats::class,
         ];
     }
 }
