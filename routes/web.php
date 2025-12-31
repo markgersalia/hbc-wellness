@@ -10,4 +10,4 @@ Route::get('/', function () {
 });
 
 
-Route::get('book',ReservationForm::class);
+// Route::get('book',ReservationForm::class);
