@@ -21,9 +21,6 @@ class TherapistsTable
                     ->searchable(),
                 TextColumn::make('bio')
                     ->searchable(),
-                TextColumn::make('branch_id')
-                    ->numeric()
-                    ->sortable(),
                 TextColumn::make('email')
                     ->label('Email address')
                     ->searchable(),

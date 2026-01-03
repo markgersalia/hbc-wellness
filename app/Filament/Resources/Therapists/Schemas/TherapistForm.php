@@ -6,6 +6,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
@@ -15,6 +16,7 @@ class TherapistForm
     {
         return $schema
             ->components([
+                
                 Section::make([
                     
                 FileUpload::make('image')
@@ -32,7 +34,13 @@ class TherapistForm
                     ->default(true)
                     ->required(),
                     
-                ])
-            ])->columns(1);
+                ])->columnSpan(2),
+                
+                Section::make([
+                    TextEntry::make('average_rating')
+                    ->size('lg')
+                    ->default(fn($record)=>$record->getRating())
+                ])->visible(fn($record)=>$record),
+            ])->columns(3);
     }
 }

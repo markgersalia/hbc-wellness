@@ -24,32 +24,8 @@ class StatsOverview extends StatsOverviewWidget
     }
 
     protected function getStats(): array
-    {
-        $revenue = BookingPayment::query()
-            ->paid()
-            ->whereHas('booking', fn($q) => $q->completed())
-            ->sum('amount');
-
-        $revenueThisMonth = BookingPayment::query()
-            ->where('created_at', '>=', now()->startOfMonth())
-            ->whereHas('booking', fn($q) => $q->completed())
-            ->paid()
-            ->sum('amount');
-
-        $completedBooking = Booking::query()->completed()->count();
-
-        $overAllRevenue = $this->formatNumberShort($revenue);
-        $revenueThisMonth = $this->formatNumberShort($revenueThisMonth);
-
-        $revenueChart = $this->generateChartData(
-            BookingPayment::query()
-                ->paid()
-                ->whereHas('booking', fn($q) => $q->completed())
-                ->selectRaw('DATE(created_at) as date, SUM(amount) as total')
-                ->groupBy('date')
-                ->pluck('total', 'date')
-                ->toArray()
-        );
+    {  
+        $completedBooking = Booking::query()->completed()->count();  
 
         $bookingChart = $this->generateChartData(
             Booking::query()
@@ -70,30 +46,39 @@ class StatsOverview extends StatsOverviewWidget
         );
 
         return [
-            Stat::make('All Time Revenue', $overAllRevenue)
-                ->chart($revenueChart)
-                ->description('All-time confirmed payments')
-                ->descriptionIcon('heroicon-o-currency-dollar')
-                ->color('success'),
-
-            Stat::make('Revenue This Month', $revenueThisMonth)
-                ->chart($revenueChart)
-                ->description('Payments this month')
-                ->descriptionIcon('heroicon-o-currency-dollar')
-                ->color('success'),
 
             Stat::make('Total Bookings', Booking::query()->count())
-                ->chart($bookingChart)
+                // ->chart($bookingChart)
                 ->description($completedBooking . ' completed')
-                ->descriptionIcon('heroicon-o-calendar-days')
-                ->color('primary'),
+                ->descriptionIcon('heroicon-o-calendar-days'),
+                // ->color('primary'),
+
+
+            Stat::make('Today’s Bookings', $this->todayBookings())
+                ->description('All bookings scheduled today'),
+
+            Stat::make('Pending Payments', $this->pendingPayments())
+                ->description('Awaiting payment'),
+                
 
             Stat::make('Customers', Customer::query()->count())
-                ->chart($customerChart)
+                // ->chart($customerChart)
                 ->description(Customer::whereHas('bookings', fn($q) => $q->confirmed())->count() . ' has active booking')
                 ->descriptionIcon('heroicon-o-users')
-                ->color('warning'),
+                // ->color('primary'),
+                
         ];
+    }
+
+
+    protected function todayBookings(): int
+    {
+        return Booking::whereDate('start_time', Carbon::today())->count();
+    }
+
+    protected function pendingPayments(): int
+    {
+        return Booking::where('payment_status', 'pending')->count();
     }
 
     private function generateChartData(array $rawData, int $days = 7): array

@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Bookings\Tables;
 
+use App\BookingStatus;
+use App\Filament\Actions\BookingActions;
 use App\Filament\Resources\BookingPayments\BookingPaymentResource;
 use App\PaymentStatus;
 use Filament\Actions\Action;
@@ -25,17 +27,16 @@ class BookingsTable
             ->filters([
                 //
                 SelectFilter::make('payment_status')
-                ->options(PaymentStatus::class)
+                ->options(PaymentStatus::class),
+                SelectFilter::make('status')
+                ->options(BookingStatus::class)
             ])
             ->recordActions([
                 // ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make()->requiresConfirmation(),
-                   Action::make('Make Payment')
-                ->schema(BookingPaymentResource::schema())
-                ->action(function ($record, array $data): void { 
-                    $record->payments()->create($data);
-                })    
+                BookingActions::makePayment()
+                ->color('primary')
                 ->icon(Heroicon::CurrencyDollar)
             ])
             ->toolbarActions([
@@ -49,6 +50,25 @@ class BookingsTable
     {
         return
             [
+                TextColumn::make('status')
+                        ->badge()
+                        ->color(fn($state) => match ($state) {
+                            'pending' => 'warning',
+                            'approved' => 'success',
+                            'canceled' => 'danger',
+                            'completed' => 'success',
+                            default => 'info',
+                        })
+                        ->sortable(),
+                TextColumn::make('payment_status')
+                        ->badge()
+                        ->color(fn($state) => match ($state) {
+                            'pending' => 'warning',
+                            'paid' => 'success',
+                            'failed' => 'danger',
+                            default => 'gray',
+                        })
+                        ->sortable(),
                 ImageColumn::make('listing.images')->label(""),
                 TextColumn::make('listing.title')
                     ->numeric() 
@@ -58,7 +78,7 @@ class BookingsTable
                     ->sortable(),   
                 TextColumn::make('therapist.name'),
                 TextColumn::make('price')
-                    ->numeric() 
+                    ->money('PHP') 
                     ->sortable(),  
                 TextColumn::make('start_time')
                     ->dateTime()
@@ -66,17 +86,9 @@ class BookingsTable
                 TextColumn::make('end_time')
                     ->dateTime()
                     ->sortable(),
-                TextColumn::make('status')
-                        ->badge()
-                        ->color(fn($state) => match ($state) {
-                            'pending' => 'warning',
-                            'approved' => 'success',
-                            'canceled' => 'danger',
-                            'completed' => 'success',
-                            default => 'gray',
-                        }),
                 TextColumn::make('user.name')
                     ->label("Processed By")
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()

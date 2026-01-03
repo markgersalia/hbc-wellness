@@ -48,6 +48,13 @@ class Booking extends Model implements Eventable
             'completed' => '#4ade80', // green
             default     => '#9ca3af', // gray
         };
+        //    return match ($this->status) {
+        //     'pending'   => '#fbbf24', // amber
+        //     'confirmed' => '#d97706', // blue
+        //     'canceled'  => '#92400e', // red
+        //     'completed' => '#f59e0b', // green
+        //     default     => '#9ca3af', // gray
+        // };
     }
 
     public $statuses = ['pending', 'confirmed', 'canceled', 'completed'];
@@ -121,11 +128,12 @@ class Booking extends Model implements Eventable
     {
         return CalendarEvent::make($this)
             ->action('edit')
-            ->title("{$this?->listing?->title} {$this?->title} ")
+            ->title("($this->status) {$this?->listing?->title} {$this?->title} ")
             ->start($this->start_time)
             ->end($this->end_time)
             ->extendedProp('customer_name', $this->customer->name)
             ->backgroundColor($this->getStatusColor())
+            // ->backgroundColor('#FE9A00')
         ;
     }
 
@@ -144,6 +152,9 @@ class Booking extends Model implements Eventable
             // Generate a unique code
             $booking->user_id = auth()->user()->id;
             
+            if($booking->customer->is_vip){
+                $booking->status = 'confirmed';
+            }
         });
 
         static::updated(function ($booking) {
@@ -169,7 +180,7 @@ class Booking extends Model implements Eventable
                     ],
                 ];
 
-                if (isset($statusMap[$booking->status])) {
+                if (isset($statusMap[$booking?->status])) {
                     $template = $statusMap[$booking->status]['template'];
                     $subject  = sprintf($statusMap[$booking->status]['subject'], $booking->booking_number);
 
@@ -179,11 +190,15 @@ class Booking extends Model implements Eventable
             }
         });
 
+        
 
         static::created(function ($booking) { 
             $subject = "[".config('app.name') . "] Booking Created – Pending Confirmation #{$booking->booking_number}";
             $template = 'mails.bookings.created';
-            $booking->load('listing', 'therapist');
+            $booking->load('listing', 'therapist','customer');
+
+
+
             if(!$booking->status){
                 $booking->status = 'pending';
             }
@@ -214,6 +229,7 @@ class Booking extends Model implements Eventable
             if(auth()->user()){
                 $booking->user_id = auth()->user()->id;
             }
+
         });
     }
 
@@ -257,6 +273,8 @@ class Booking extends Model implements Eventable
         return ($status == 'confirmed' && $this->payment_status == 'paid') ;
     }
 
+
+
     // public static function availableTimeslots($date)
     // {
     //     $slots = TimeslotService::generateForDay($date); // returns ['start' => Carbon, 'end' => Carbon, 'label' => '...']
@@ -297,6 +315,7 @@ class Booking extends Model implements Eventable
         DB::table('booking_payments')->delete();
         DB::table('invoices')->delete();
     }
+
 
 
 }

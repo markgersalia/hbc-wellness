@@ -13,28 +13,13 @@ class BookingStats extends StatsOverviewWidget
     {
         return [
             Stat::make('Today’s Bookings', $this->todayBookings())
-                ->description('All bookings scheduled today')
-                ->color('primary'),
+                ->description('All bookings scheduled today'),
 
             Stat::make('Upcoming Bookings', $this->upcomingBookings())
-                ->description('Confirmed & pending')
-                ->color('info'),
-
-            Stat::make('Completed', $this->completedBookings())
-                ->description('Successfully finished')
-                ->color('success'),
-
-            Stat::make('Canceled', $this->canceledBookings())
-                ->description('Canceled bookings')
-                ->color('danger'),
-
-            Stat::make('Today’s Revenue', '₱ ' . number_format($this->todayRevenue(), 2))
-                ->description('Completed & paid today')
-                ->color('success'),
+                ->description('Confirmed & pending'),
 
             Stat::make('Pending Payments', $this->pendingPayments())
-                ->description('Awaiting payment')
-                ->color('warning'),
+                ->description('Awaiting payment'),
         ];
     }
 

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Therapists;
 
 use App\Filament\Clusters\Therapist\TherapistCluster;
+use App\Filament\Resources\Listings\RelationManagers\BookingsRelationManager;
 use App\Filament\Resources\Therapists\Pages\CreateTherapist;
 use App\Filament\Resources\Therapists\Pages\EditTherapist;
 use App\Filament\Resources\Therapists\Pages\ListTherapists;
@@ -39,7 +40,7 @@ class TherapistResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            // BookingsRelationManager::make()
         ];
     }
 

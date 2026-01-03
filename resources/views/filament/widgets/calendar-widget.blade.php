@@ -1,5 +1,3 @@
-<x-filament-widgets::widget>
-    <x-filament::section>
-        {{-- Widget content --}}
-    </x-filament::section>
-</x-filament-widgets::widget>
+<div wire:key="calendar-{{ $calendarView->value }}">
+    {{ $this->calendar }}
+</div>

@@ -52,7 +52,7 @@ class BookingForm
                         ->color(fn($state) => match ($state) {
                             'pending' => 'warning',
                             'approved' => 'success',
-                            'cancelled' => 'danger',
+                            'canceled' => 'danger',
                             'confirmed' => 'info',
                             'completed' => 'success',
                             default => 'gray',
@@ -146,13 +146,21 @@ class BookingForm
 
                     Select::make('customer_id')
                         ->relationship(name: 'customer', titleAttribute: 'name')
-                        ->options(Customer::query()->pluck('name', 'id'))
+                        ->options(function($q){
+                            $customers = Customer::All();
+                            $customerOptions = [];
+                            foreach ($customers as $key => $customer) {
+                                $customerOptions[$customer->id] = $customer->displayNameWithStatus();
+                            }
+                            return $customerOptions;
+                        })
                         ->hidden($type == "customers")
                         ->searchable()
                         ->createOptionForm(
                             CustomerForm::schema()
                         )
                         ->columnSpanFull()
+                        ->helperText("If selected is VIP, the booking will automatically set to confirmed")
                         ->required(),
 
                     Select::make('listing_id')
@@ -309,6 +317,10 @@ class BookingForm
 
                             $therapist = Therapist::active()->find($value);
 
+                            if ($therapist->isOnLeave($start, $end)) {
+                                return true;
+                            }
+
                             // Exclude current booking ID from availability check
                             return !$therapist?->isAvailable($date, $start, $end, $record?->id);
                         })
@@ -316,11 +328,11 @@ class BookingForm
                         ->preload()
                         ->required(fn($record) => $record === null)
                         ->dehydrated(false)
-                        ->validatedWhenNotDehydrated(false) 
+                        ->validatedWhenNotDehydrated(false)
                         ->reactive(),
                     Select::make('bed_id')
                         ->label('Bed')
-                        ->relationship('bed', 'name') 
+                        ->relationship('bed', 'name')
                         ->options(Bed::available()->pluck('name', 'id'))
                         ->disableOptionWhen(function ($value, callable $get, $record = null) {
                             $date = $get('selected_date');
@@ -337,7 +349,7 @@ class BookingForm
                         // ->hidden(fn(callable $get) => $get('available_timeslots') == null)
                         ->preload()
                         ->required(fn($record) => $record === null)
-                        // ->dehydrated(false)
+                        // ->dehydrated(fal se)
                         ->validatedWhenNotDehydrated(false)
 
                         ->reactive(),
@@ -391,18 +403,15 @@ class BookingForm
                 ->schema([
                     Select::make('therapist_id')
                         ->relationship('therapist', 'name')
-                        // ->default(function ($record) {
-                        //     return $record?->therapist_id;
-                        // })\
-                        ,
+                        ->default(function ($record) {
+                            return $record?->therapist_id;
+                        }),
 
                     Select::make('therapist_rating')
                         ->options([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
 
-                    TextInput::make('post_pain_rating')
-                        ->numeric()
-                        ->minValue(0)
-                        ->maxValue(10),
+                    Select::make('post_pain_rating')
+                        ->options([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
                 ]),
 
             Step::make('Remarks')
@@ -416,7 +425,7 @@ class BookingForm
                         ->label('Next Session Date')
                         ->reactive()
                         ->visible(fn($get) => $get('require_followup') === true),
- 
+
                     Textarea::make('client_remarks')
                         ->rows(4)
                         ->columnSpanFull(),

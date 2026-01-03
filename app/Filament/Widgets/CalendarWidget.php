@@ -6,6 +6,8 @@ use App\Filament\Actions\BookingActions;
 use App\Filament\Resources\BookingPayments\BookingPaymentResource;
 use App\Filament\Resources\Bookings\Schemas\BookingForm;
 use App\Models\Booking;
+use App\Models\TherapistLeave;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
@@ -30,6 +32,9 @@ use Livewire\Form;
 
 class CalendarWidget extends FilamentCalendarWidget
 {
+    
+        use HasWidgetShield;
+
     // protected CalendarViewType $calendarView = CalendarViewType::ListDay;
     protected bool $eventClickEnabled = true;
     protected bool $dateClickEnabled  = true;
@@ -37,7 +42,7 @@ class CalendarWidget extends FilamentCalendarWidget
     // protected bool $eventResizeEnabled = true;
 
 
-    // protected bool $eventDragEnabled = true;
+    protected bool $dateSelectEnabled = true;
 
 
     // public function getHeaderActions(): array
@@ -49,58 +54,65 @@ class CalendarWidget extends FilamentCalendarWidget
     //             ) 
     //     ];
     // }  
-    protected CalendarViewType $calendarView = CalendarViewType::ListDay;
+    protected CalendarViewType $calendarView = CalendarViewType::DayGridMonth;
+    protected function getHeader(): ?\Illuminate\Contracts\View\View
+    {
+        return view('filament.widgets.calendar-legend');
+    }
 
-       
-public function mount(): void
-{
-    $this->calendarView = CalendarViewType::tryFrom(
-        session('calendar_view')
-    ) ?? CalendarViewType::ListDay;
-}
 
-protected $listeners = ['updateUserOverview' => '$refresh'];
+    public function mount(): void
+    {
+        $this->calendarView = CalendarViewType::tryFrom(
+            session('calendar_view')
+        ) ?? CalendarViewType::DayGridMonth;
+    }
 
-public function setView(CalendarViewType $view)
-{
-    session([
-        'calendar_view' => $view->value,
-    ]);
- 
-    // full page reload
-    return redirect(request()->header('Referer'));
-}
+    protected $listeners = ['updateUserOverview' => '$refresh'];
 
-        public function getHeaderActions(): array
-        {
-            return [
-                Action::make('month')
-                    ->label('Month')
-                    ->action(fn () => $this->setView(CalendarViewType::DayGridMonth))
-                    ->color(fn () =>
-                        $this->calendarView === CalendarViewType::DayGridMonth
-                            ? 'primary'
-                            : 'gray'
-                    ),
+    public function setView(CalendarViewType $view)
+    {
+        session([
+            'calendar_view' => $view->value,
+        ]);
 
-                Action::make('day')
-                    ->label('Day')
-                    ->action(fn () => $this->setView(CalendarViewType::TimeGridDay))
-                    ->color(fn () =>
-                        $this->calendarView === CalendarViewType::TimeGridDay
-                            ? 'primary'
-                            : 'gray'
-                    ),
-            ];
-        }
-       
-protected function getCalendarConfig(): array
-{
-    return [
-        'initialView' => $this->calendarView->value,
-        'headerToolbar' => false,
-    ];
-}
+        // full page reload
+        return redirect(request()->header('Referer'));
+    }
+
+    public function getHeaderActions(): array
+    {
+        // dd($this->calendarView->value,CalendarViewType::ListDay->value);
+        return [
+            Action::make('month')
+                ->label('Month')
+                ->action(fn() => $this->setView(CalendarViewType::DayGridMonth))
+                ->color(
+                    fn() =>
+                    $this->calendarView->value == CalendarViewType::DayGridMonth->value
+                        ? 'primary'
+                        : 'gray'
+                ),
+            Action::make('day')
+                ->label('Day')
+                ->action(fn() => $this->setView(CalendarViewType::ListDay))
+
+                ->color(
+                    fn() =>
+                    $this->calendarView->value == CalendarViewType::ListDay->value
+                        ? 'primary'
+                        : 'gray'
+                ),
+        ];
+    }
+
+    protected function getCalendarConfig(): array
+    {
+        return [
+            'initialView' => $this->calendarView->value,
+            'headerToolbar' => false,
+        ];
+    }
 
 
 
@@ -108,7 +120,7 @@ protected function getCalendarConfig(): array
     {
         return $this->editAction(\App\Models\Booking::class)
             ->label('Edit Booking')
-           
+
             ->extraModalFooterActions([
                 Action::make('saveAndCreateAnother')
                     ->label('Save & Add Another')
@@ -117,17 +129,18 @@ protected function getCalendarConfig(): array
                         // Custom logic here
                     }),
             ])
-            ->extraModalFooterActions([ 
-                    BookingActions::complete(), 
-                    BookingActions::confirm(),
-                    BookingActions::cancel(),
-                    BookingActions::makePayment() 
+            ->extraModalFooterActions([
+                BookingActions::complete(),
+                BookingActions::confirm(),
+                BookingActions::cancel(),
+                BookingActions::makePayment()
             ])
             ->after(fn() => $this->refreshRecords());
     }
 
-    public function createFollowupBookingAction():CreateAction{
-         return $this->createAction(\App\Models\Booking::class)
+    public function createFollowupBookingAction(): CreateAction
+    {
+        return $this->createAction(\App\Models\Booking::class)
             ->label('Add followup Booking')
             ->extraModalFooterActions([
                 Action::make('saveAndCreateAnother')
@@ -136,10 +149,47 @@ protected function getCalendarConfig(): array
                     ->action(function (array $data) {
                         // Custom logic here
                     }),
-            ])->mountUsing(function (Schema $form,$arguments) {
+            ])->mountUsing(function (Schema $form, $arguments) {
                 $form->fill($arguments);
                 // ...
             })
+            ->after(fn() => $this->refreshRecords());
+    }
+
+
+
+    public function createLeavesAction(): CreateAction
+    {
+        return $this->createAction(\App\Models\TherapistLeave::class)
+            ->label('Create Leave')
+            ->fillForm(function (?ContextualInfo $info) {
+                // You can now access contextual info from the calendar using the $info argument
+                if ($info instanceof DateClickInfo) {
+                    return [
+                        'start_date' => $info?->date?->toDateTimeString(),
+                        'end_date'   => $info?->date->endOfDay()?->toDateTimeString(),
+                    ];
+                }
+
+                // Both comparison checks are equal, but instanceof is better for IDE help
+                if ($info->getContext() === Context::DateSelect) {
+                    // do something on date select
+                    $start = $info?->start;
+                    $end = $info?->end->subSecond();
+                    return [
+                        'start_date' => $start->toDateTimeString(),
+                        'end_date'   => $end->toDateTimeString(),
+                    ];
+                }
+            })
+            ->extraModalFooterActions([
+                Action::make('saveAndCreateAnother')
+                    ->label('Save & Add Another')
+                    ->color('gray')
+                    ->action(function (array $data) {
+                        // Custom logic here
+                    }),
+            ])
             ->after(fn() => $this->refreshRecords());
     }
 
@@ -147,13 +197,13 @@ protected function getCalendarConfig(): array
     {
         return $this->createAction(\App\Models\Booking::class)
             ->label('Create Booking')
-             ->mountUsing(function (array $arguments, Form $form) {
-                    $form->fill([
-                        'customer_id'  => $arguments['customer_id'] ?? null,
-                        'listing_id'   => $arguments['listing_id'] ?? null,
-                        'therapist_id' => $arguments['therapist_id'] ?? null,
-                    ]);
-                })
+            ->mountUsing(function (array $arguments, Form $form) {
+                $form->fill([
+                    'customer_id'  => $arguments['customer_id'] ?? null,
+                    'listing_id'   => $arguments['listing_id'] ?? null,
+                    'therapist_id' => $arguments['therapist_id'] ?? null,
+                ]);
+            })
             ->fillForm(function (?ContextualInfo $info) {
                 // You can now access contextual info from the calendar using the $info argument
                 if ($info instanceof DateClickInfo) {
@@ -220,6 +270,7 @@ protected function getCalendarConfig(): array
     {
         return [
             $this->createBookingAction(),
+            $this->createLeavesAction(),
             // Any other action you want
         ];
     }
@@ -249,25 +300,81 @@ protected function getCalendarConfig(): array
         // Return true to accept the drop and keep the event in the new position
         return true;
     }
-    protected function getEvents(FetchInfo $info): Collection | array | Builder
+    protected function getEvents(FetchInfo $info): Collection
     {
-        // The simplest way:
-        // return Booking::query();
+        return Booking::whereBetween('start_time', [$info->start, $info->end])
+            ->get()
+            ->merge(
+                TherapistLeave::whereBetween('start_date', [$info->start, $info->end])->get()
+            );
+    }
 
-        // You probably want to query only visible events:
-        return Booking::query()
-            // ->confirmed()
-            ->whereDate('end_time', '>=', $info->start)
-            ->whereDate('start_time', '<=', $info->end);
+
+
+
+    public function editEventAction(): EditAction
+    {
+
+        return $this->editAction(fn($record) => $this->getEditModel($record))
+            ->label(fn($record) => $this->getEditLabel($record))
+            ->extraModalFooterActions(fn($record) => $this->getEditFooterActions($record))
+            ->after(fn($livewire) => $this->safeRefresh($livewire));
+    }
+    protected function getEditModel($event): string
+    {
+        return $event instanceof Booking
+            ? Booking::class
+            : TherapistLeave::class;
+    }
+
+    protected function getEditLabel($event): string
+    {
+        return $event instanceof Booking
+            ? 'Edit Booking'
+            : 'Edit Leave';
+    }
+
+    protected function getEditFooterActions($event): array
+    {
+        if (! $event instanceof Booking) {
+            return [];
+        }
+
+        return [
+            BookingActions::complete(),
+            BookingActions::confirm(),
+            BookingActions::cancel(),
+            BookingActions::makePayment(),
+        ];
+    }
+
+    protected function safeRefresh($livewire): void
+    {
+        if (method_exists($livewire, 'refreshRecords')) {
+            $livewire->refreshRecords();
+            return;
+        }
+
+        // fallback for pages / non-widget contexts
+        $livewire?->dispatch('refresh');
     }
 
 
     protected function getEventClickContextMenuActions(): array
     {
         return [
-             
-            $this->editBookingAction(),
+
+            $this->editEventAction(),
+            // $this->editLeaveAction(),
+            // $this->editBookingAction(),
             $this->deleteAction(),
         ];
+    }
+
+    protected function onDateSelect(DateSelectInfo $info): void
+    {
+        // Validate the data and handle the event
+        // For example, you might want to mount a create action
+        $this->mountAction('createLeavesAction');
     }
 }

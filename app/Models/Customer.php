@@ -15,4 +15,13 @@ class Customer extends Model
     public function post_assestments(){ 
         return $this->hasMany(CustomerPostAssesment::class);
     }
+
+    
+    public function displayNameWithStatus(){
+        $is_vip = $this->is_vip;
+        if($is_vip){
+            return $this->name . " (VIP)";            
+        }
+        return $this->name;
+    }
 }

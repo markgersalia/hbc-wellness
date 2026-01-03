@@ -19,9 +19,22 @@ class Therapist extends Model
         return $this->hasMany(Booking::class);
     }
 
+    
+    public function post_assestments(){ 
+        return $this->hasMany(CustomerPostAssesment::class);
+    }
+
+    public function leaves()
+    {
+        return $this->hasMany(TherapistLeave::class);
+    }
     public function scopeActive($q)
     {
         return $q->where('is_active', 1);
+    }
+
+    public function getRating(){
+        return round($this->post_assestments()->average('therapist_rating'));
     }
 
     // public function isAvailable($date, $startTime, $endTime)
@@ -43,15 +56,29 @@ class Therapist extends Model
     //         ->exists();
     // }
 
+    public function isOnLeave($start, $end): bool
+    {
+
+        $start = Carbon::parse($start)->startOfDay();
+        $end   = Carbon::parse($end)->endOfDay();
+        
+
+        return $this->leaves()
+            ->where('start_date', '<=', $end->toDateTimeString())
+            ->where('end_date', '>=', $start->toDateTimeString())
+            ->exists();
+    }
+
+
     public function isAvailable($date, $startTime, $endTime, $excludeBookingId = null)
     {
 
         $start = Carbon::parse($startTime);
-            $end   = Carbon::parse($endTime);
+        $end   = Carbon::parse($endTime);
 
         //     // Override date to avoid double-date issue
-            $start->setDate(Carbon::parse($date)->year, Carbon::parse($date)->month, Carbon::parse($date)->day);
-            $end->setDate(Carbon::parse($date)->year, Carbon::parse($date)->month, Carbon::parse($date)->day);
+        $start->setDate(Carbon::parse($date)->year, Carbon::parse($date)->month, Carbon::parse($date)->day);
+        $end->setDate(Carbon::parse($date)->year, Carbon::parse($date)->month, Carbon::parse($date)->day);
 
 
         return !$this->bookings()

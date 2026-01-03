@@ -54,7 +54,7 @@ class PaymentsRelationManager extends RelationManager
                 TextColumn::make('payment_reference')
                     ->searchable(),
                 TextColumn::make('amount')
-                    ->numeric()
+                    ->money('PHP')
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
@@ -64,7 +64,7 @@ class PaymentsRelationManager extends RelationManager
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                     TextColumn::make('amount')
-                    ->money()
+                    ->money('PHP')
                     ->summarize(Sum::make())
             ])
             ->filters([

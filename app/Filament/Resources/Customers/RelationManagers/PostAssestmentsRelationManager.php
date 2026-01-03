@@ -29,7 +29,12 @@ class PostAssestmentsRelationManager extends RelationManager
     public function form(Schema $schema): Schema
     {
         return $schema
-            ->components(Wizard::make(BookingForm::postAssessmentWizard())->columnSpanFull());
+            ->components(function($record){
+                if(!$record){
+                   return Wizard::make(BookingForm::postAssessmentWizard())->columnSpanFull();
+                }
+            })
+            ;
     }
 
     public function infolist(Schema $schema): Schema
@@ -113,19 +118,11 @@ class PostAssestmentsRelationManager extends RelationManager
             ])
             ->headerActions([
                 CreateAction::make(),
-                AssociateAction::make(),
+                // AssociateAction::make(),
             ])
             ->recordActions([
-                ViewAction::make(),
                 EditAction::make(),
-                DissociateAction::make(),
                 DeleteAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DissociateBulkAction::make(),
-                    DeleteBulkAction::make(),
-                ]),
             ]);
     }
 }

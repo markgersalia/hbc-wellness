@@ -12,8 +12,10 @@ use Filament\Actions\EditAction;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\TextSize;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -35,13 +37,20 @@ class BookingPaymentResource extends Resource
     public static function schema($balance = 0)
     {
         return [
-            
+            TextEntry::make('booking.balance')
+            ->label("")
+            ->money('PHP')
+            ->size(TextSize::Large)
+            ->visible($balance != 0)
+            ->weight('bold')
+            ->default($balance),
             Select::make('payment_method')
                 ->options([
                     'card' => 'Card',
                     'bank_transfer' => 'Bank transfer',
                     'cash' => 'Cash',
                 ])
+                ->default('cash')
                 ->required()
                 ->reactive(), // make the select reactive so dependent fields update
 

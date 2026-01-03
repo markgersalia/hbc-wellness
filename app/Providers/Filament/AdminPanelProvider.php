@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Widgets\CalendarWidget;
+use App\Filament\Widgets\RevenueWidget;
 use App\Filament\Widgets\Sales;
 use App\Filament\Widgets\StatsOverview;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
@@ -46,6 +47,7 @@ class AdminPanelProvider extends PanelProvider
                 // AccountWidget::class,
                 // FilamentInfoWidget::class,
                 StatsOverview::class,
+                RevenueWidget::class,
                 CalendarWidget::class,
             ])
             ->middleware([
@@ -54,7 +56,7 @@ class AdminPanelProvider extends PanelProvider
                 StartSession::class,
                 AuthenticateSession::class,
                 ShareErrorsFromSession::class,
-                VerifyCsrfToken::class,
+                VerifyCsrfToken::class, 
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,

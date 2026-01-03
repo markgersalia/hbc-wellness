@@ -9,8 +9,8 @@ class Bed extends Model
 {
     protected $fillable = [
         'name',
-        'code',
-        'status',
+        'description',
+        'is_available',
     ];
 
       public function bookings()
@@ -24,7 +24,7 @@ class Bed extends Model
 
     public function scopeAvailable($query)
     {
-        return $query->where('status', 'available');
+        return $query->where('is_available', true);
     }
 
     

@@ -27,13 +27,17 @@ class BookingResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::CalendarDateRange;
     protected static ?string $cluster = BookingCluster::class;
+    protected static ?int $navigationSort = 1;
 
     // protected static UnitEnum|string|null $navigationGroup = 'Booking Management';
     public static function form(Schema $schema): Schema
     {
         return BookingForm::configure($schema);
-    } 
-
+    }
+    public static function getNavigationBadge(): ?string
+    {
+        return (string) Booking::count();
+    }
     public static function table(Table $table): Table
     {
         return BookingsTable::configure($table);
@@ -62,6 +66,4 @@ class BookingResource extends Resource
             BookingStats::class,
         ];
     }
-
-    
 }

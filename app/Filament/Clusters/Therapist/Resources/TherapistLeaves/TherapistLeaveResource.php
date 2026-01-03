@@ -2,8 +2,10 @@
 
 namespace App\Filament\Clusters\Therapist\Resources\TherapistLeaves;
 
+use App\TherapistLeaveType;
 use App\Filament\Clusters\Therapist\Resources\TherapistLeaves\Pages\ManageTherapistLeaves;
 use App\Filament\Clusters\Therapist\TherapistCluster;
+use App\Models\Therapist;
 use App\Models\TherapistLeave;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
@@ -11,7 +13,9 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -27,31 +31,85 @@ class TherapistLeaveResource extends Resource
 
     protected static ?string $cluster = TherapistCluster::class;
 
+
+    public static function schema()
+    {
+        return [
+            Select::make('therapist_id')
+                ->label('Therapist')
+                ->reactive()
+                ->options(fn() => Therapist::active()->pluck('name', 'id'))
+
+                ->disableOptionWhen(function ($value, callable $get,$record) {
+
+
+                    $start = $get('start_date');
+                    $end   = $get('end_date');
+                    // ✅ allow currently selected therapist
+                    if ($record && (int) $record->therapist_id === (int) $value) {
+                        return false;
+                    }
+
+                    if (! $start || ! $end) {
+                        return false;
+                    }
+
+                    return TherapistLeave::where('therapist_id', $value)
+                        ->where(function ($q) use ($start, $end) {
+                            $q->whereBetween('start_date', [$start, $end])
+                                ->orWhereBetween('end_date', [$start, $end])
+                                ->orWhere(function ($q) use ($start, $end) {
+                                    $q->where('start_date', '<=', $start)
+                                        ->where('end_date', '>=', $end);
+                                });
+                        })
+                        ->exists();
+                })
+
+                // ✅ required ONLY when editing
+                ->required(fn($record) => filled($record))
+
+                // ✅ ALWAYS dehydrate so DB gets the value
+                ->dehydrated()
+
+                ->columnSpanFull(),
+            DateTimePicker::make('start_date')
+                ->required()
+                ->reactive()
+                ->columnSpan(1),
+            DateTimePicker::make('end_date')
+                ->required()
+                ->reactive()
+                ->columnSpan(1),
+
+
+            Select::make('status')
+                ->default('pending')
+                ->options(['pending' => 'Pending', 'approved' => 'Approved', 'rejected' => 'Rejected'])
+                ->required(),
+            Select::make('type')
+                ->label('Leave Type')
+                ->options(TherapistLeaveType::options())
+                ->required(),
+            Textarea::make('reason')
+                ->columnSpanFull()
+                ->rows(5)
+                ->required(),
+
+        ];
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema
-            ->components([
-                TextInput::make('therapist_id')
-                    ->required()
-                    ->numeric(),
-                TextInput::make('reason')
-                    ->required(),
-                DatePicker::make('start_date')
-                    ->required(),
-                DatePicker::make('end_date')
-                    ->required(),
-                Select::make('status')
-                    ->options(['pending' => 'Pending', 'approved' => 'Approved', 'rejected' => 'Rejected'])
-                    ->required(),
-            ]);
+            ->components(self::schema())->columns(2);
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                TextColumn::make('therapist_id')
-                    ->numeric()
+                TextColumn::make('therapist.name')
                     ->sortable(),
                 TextColumn::make('reason')
                     ->searchable(),

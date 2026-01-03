@@ -15,9 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('therapist_id');
             $table->string('reason');
-            $table->date('start_date');
-            $table->date('end_date');
-            $table->enum('status',['pending','approved','rejected']);
+            $table->timestamp('start_date');
+            $table->timestamp('end_date');
+            $table->enum('type',['sick_leave','vacation_leave','emergency_leave','other']);
+            $table->enum('status',['pending','approved','rejected']); 
             // $table->softDeletesIfNotExists
             $table->timestamps();
         });

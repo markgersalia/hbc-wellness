@@ -21,7 +21,7 @@ class EditBooking extends EditRecord
     {
         return [
             BookingActions::complete(),
-            BookingActions::confirm(),
+            BookingActions::confirm('form'),
             BookingActions::cancel(),
             BookingActions::makePayment() ,
  

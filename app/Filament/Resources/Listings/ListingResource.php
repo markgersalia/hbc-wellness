@@ -17,6 +17,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
 use UnitEnum;
 
 class ListingResource extends Resource
@@ -26,7 +27,18 @@ class ListingResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::ListBullet;
     
     protected static ?string $cluster = BookingCluster::class;
+    
+     protected static ?int $navigationSort = 2;
 
+    public static function getNavigationBadge(): ?string
+    {
+        return (string) Listing::count();
+    }
+
+    public function getTitle(): string | Htmlable
+    {
+        return 'Services';
+    }
     // protected static UnitEnum|string|null $navigationGroup = 'Booking Management';
     public static function canAccess(): bool
 {
