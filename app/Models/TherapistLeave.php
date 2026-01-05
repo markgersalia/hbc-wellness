@@ -34,7 +34,7 @@ class TherapistLeave extends Model implements Eventable
             ->title(" ({$typeLabel} : {$this->status})   {$this?->therapist?->name} {$this?->reason} ")
             ->start($this->start_date)
             ->end($this->end_date)
-            ->backgroundColor("#f87171")
+            ->backgroundColor("#808080")
             // ->backgroundColor('#ff0000')
             ->allDay()
             // ->url(

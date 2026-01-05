@@ -36,7 +36,7 @@ class TherapistLeaveResource extends Resource
     {
         return [
             Select::make('therapist_id')
-                ->label('Therapist')
+                ->label('Therapist') 
                 ->reactive()
                 ->options(fn() => Therapist::active()->pluck('name', 'id'))
 
@@ -67,7 +67,7 @@ class TherapistLeaveResource extends Resource
                 })
 
                 // ✅ required ONLY when editing
-                ->required(fn($record) => filled($record))
+                ->required(fn($record) => !$record)
 
                 // ✅ ALWAYS dehydrate so DB gets the value
                 ->dehydrated()
@@ -93,8 +93,7 @@ class TherapistLeaveResource extends Resource
                 ->required(),
             Textarea::make('reason')
                 ->columnSpanFull()
-                ->rows(5)
-                ->required(),
+                ->rows(5) ,
 
         ];
     }
