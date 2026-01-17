@@ -10,7 +10,7 @@
             </div>
         </div>
 
-        <form action="#" method="POST" class="space-y-4">
+        <form wire:submit.prevent="submit" class="space-y-4">
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
@@ -23,8 +23,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Available Time Slot</label>
 
-                    <select wire:model.live="time_slot" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm
-                   focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm">
+<select wire:model.live="time_slot" class="mt-1 block w-full ">
                         <option value="">Select time</option>
 
                         @foreach ($this->availableTimeSlots as $key => $value)
