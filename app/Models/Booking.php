@@ -141,11 +141,11 @@ class Booking extends Model implements Eventable
     /**
      * The "booted" method of the model.
      */
-    protected static function boot(): void
+    protected static function booted(): void
     {
         
 
-        parent::boot();
+        parent::booted();
 
         // Before creating a new Customer
         static::creating(function ($booking) {
@@ -316,6 +316,13 @@ class Booking extends Model implements Eventable
         DB::table('invoices')->delete();
     }
 
+
+    public static function generateBookingNumber(){
+        $latest = self::latest('id')->first();
+        $nextNumber = $latest ? $latest->id + 1 : 1;
+
+        return 'BK-' . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
+    }
 
 
 }
