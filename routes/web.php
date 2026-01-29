@@ -10,5 +10,8 @@ Route::get('/test-home', function () {
     return view('home');
 });
 
+Route::redirect('/', '/admin');
+
+ 
 Route::get('/book', ReservationForm::class)->name('book');
 
