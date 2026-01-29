@@ -60,15 +60,7 @@
                 </a>
             </div>
 
-            <!-- Scroll Indicator -->
-            <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2">
-                <a href="#about" class="flex flex-col items-center text-white/70 hover:text-white transition-colors group">
-                    <span class="text-xs tracking-widest uppercase mb-3 opacity-0 group-hover:opacity-100 transition-opacity">Scroll Down</span>
-                    <div class="w-6 h-10 border-2 border-white/50 rounded-full flex items-start justify-center p-2">
-                        <div class="w-1 h-3 bg-white/70 rounded-full animate-bounce"></div>
-                    </div>
-                </a>
-            </div>
+             
         </div>
     </section>
 </div>
