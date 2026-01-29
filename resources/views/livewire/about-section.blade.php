@@ -1,3 +1,4 @@
+<div>
 <section id="about" class="py-20 lg:py-32 bg-white">
     <div class="container mx-auto px-6 lg:px-12">
         
@@ -118,3 +119,4 @@
         </div>
     </div>
 </section>
+</div>

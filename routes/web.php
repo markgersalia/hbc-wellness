@@ -6,7 +6,7 @@ use App\Livewire\ReservationForm;
 use Illuminate\Support\Facades\Route;
 
 
-Route::get('/', function () {
+Route::get('/test-home', function () {
     return view('home');
 });
 

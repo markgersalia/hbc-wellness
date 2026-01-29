@@ -1,7 +1,6 @@
-@extends('components.layouts.app')
+@extends('layouts.app')
 
 @section('content')
-
     @livewire('hero')
     @livewire('about-section')
     @livewire('services')
@@ -24,12 +23,12 @@
                 
                 <p class="text-secondary text-sm tracking-[0.3em] uppercase mb-4 font-light">Reserve Your Time</p>
                 <h2 class="text-4xl md:text-5xl lg:text-6xl font-display font-light text-dark">
-                    Book Your <span class="italic">Appointment</span>
+                    Book Your <span class="itlic">Appointment</span>
                 </h2>
             </div>
             
             <!-- Include the booking form component here -->
-            {{-- @livewire('booking-form') --}}
+            @livewire('booking-form')
         </div>
     </section>
 @endsection
