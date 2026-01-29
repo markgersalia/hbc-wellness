@@ -268,6 +268,11 @@ class Booking extends Model implements Eventable
         return ($status == 'pending' || $status == 'confirmed') && $this->payment_status != 'paid';
     }
 
+    public function canConfirm(){
+        $status = $this->status;
+        return ($status == 'pending') && $this->payment_status != 'pending';
+    }
+
     public function canComplete(){
         $status = $this->status;
         return ($status == 'confirmed' && $this->payment_status == 'paid') ;

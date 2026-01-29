@@ -12,8 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('therapist_leaves', function (Blueprint $table) {
-            //
-            $table->enum('type',['sick_leave','vacation_leave','emergency_leave','other']);
+            //\
+            if (!Schema::hasColumn('therapist_leaves', 'type')) {
+                $table->enum('type',['sick_leave','vacation_leave','emergency_leave','other']);
+            }
         });
     }
 

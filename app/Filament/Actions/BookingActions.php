@@ -27,9 +27,8 @@ class BookingActions
         return Action::make('confirmBooking')
             ->label('Confirm Booking')
             ->color('primary')
-            ->visible(fn(Booking $record) => $record->status === 'pending')
-            ->action(function (Booking $record) {
-
+            ->visible(fn(Booking $record) => $record->canConfirm())
+            ->action(function (Booking $record) { 
                 $record->update(['status' => 'confirmed']);
             })
             ->after(function ($livewire) {

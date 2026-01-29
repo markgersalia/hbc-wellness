@@ -9,6 +9,7 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
 
 class CustomersTable
@@ -27,8 +28,7 @@ class CustomersTable
                     ->searchable(),
                 TextColumn::make('phone')
                     ->searchable(),
-                IconColumn::make('is_vip')
-                    ->boolean(),
+                ToggleColumn::make('is_vip'),
                 // TextColumn::make()
                 TextColumn::make('created_at')
                     ->dateTime()
