@@ -159,7 +159,7 @@ class ReservationForm extends Component {
     
     public function render(): View
     { 
-        return view('livewire.reservation-form');
+        return view('livewire.home.reservation-form');
     }
 
     public function checkAvailability(){

@@ -22,6 +22,6 @@ class Hero extends Component
 
     public function render()
     {
-        return view('livewire.hero');
+        return view('livewire.home.hero');
     }
 }

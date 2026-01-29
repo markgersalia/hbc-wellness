@@ -51,6 +51,6 @@ class Testimonials extends Component
 
     public function render()
     {
-        return view('livewire.testimonials');
+        return view('livewire.home.testimonials');
     }
 }

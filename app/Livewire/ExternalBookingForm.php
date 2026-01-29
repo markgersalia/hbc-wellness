@@ -51,7 +51,7 @@ class ExternalBookingForm extends Component implements HasForms
     
     public function render()
     {
-        return view('livewire.external-booking-form');
+        return view('livewire.home.external-booking-form');
     }
 }
 

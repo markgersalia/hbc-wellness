@@ -63,6 +63,6 @@ class RegistrationForm extends Component implements HasActions, HasSchemas
 
     public function render(): View
     {
-        return view('livewire.registration-form');
+        return view('livewire.home.registration-form');
     }
 }

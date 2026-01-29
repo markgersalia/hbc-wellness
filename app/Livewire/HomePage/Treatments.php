@@ -46,6 +46,6 @@ class Treatments extends Component
 
     public function render()
     {
-        return view('livewire.treatments');
+        return view('livewire.home.treatments');
     }
 }
