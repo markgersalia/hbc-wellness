@@ -134,6 +134,7 @@ class InvoiceForm
                                 ->reactive() 
                                 ->dehydrated(true)
                         ])
+                                ->compact()
                             ->columnSpanFull(),
                     ]),
                 Group::make()

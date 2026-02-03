@@ -18,6 +18,8 @@ class ListingsTable
             ->columns([
                 ImageColumn::make('images') 
                     ->stacked(),
+                TextColumn::make('category.name')
+                    ->searchable(), 
                 TextColumn::make('title')
                     ->searchable(), 
                 TextColumn::make('price') 

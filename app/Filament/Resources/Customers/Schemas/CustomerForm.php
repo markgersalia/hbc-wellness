@@ -54,13 +54,7 @@ class CustomerForm
                             ->columnSpanFull(),
                     ])->columns(3),
 
-                Section::make('Initial Assesment')->schema(
-                    [
-                        TextArea::make('target_area'),
-                        TextArea::make('health_history'),
-                        TextInput::make('pain_upon_cunsoltation'),
-                    ]
-                ),
+               
             ])
                 ->columnSpan(2),
 

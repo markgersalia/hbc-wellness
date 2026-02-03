@@ -20,7 +20,7 @@ use Filament\Tables\Table;
 class CategoryResource extends Resource
 {
     protected static ?string $model = Category::class;
-    // protected static ?string $cluster = ServicesCluster::class;
+    protected static ?string $cluster = ServicesCluster::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 

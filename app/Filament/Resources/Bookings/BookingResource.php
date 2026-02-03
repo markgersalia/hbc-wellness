@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\Bookings;
 
-use App\Filament\Clusters\Booking\BookingCluster;
+// use App\Filament\Clusters\Booking\BookingCluster;
 use App\Filament\Resources\BookingResource\Widgets\BookingStats;
 use App\Filament\Resources\Bookings\Pages\CreateBooking;
 use App\Filament\Resources\Bookings\Pages\EditBooking;
@@ -26,10 +26,10 @@ class BookingResource extends Resource
     protected static ?string $model = Booking::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::CalendarDateRange;
-    protected static ?string $cluster = BookingCluster::class;
+
     protected static ?int $navigationSort = 1;
 
-    // protected static UnitEnum|string|null $navigationGroup = 'Booking Management';
+    protected static UnitEnum|string|null $navigationGroup = 'Booking Management';
     public static function form(Schema $schema): Schema
     {
         return BookingForm::configure($schema);

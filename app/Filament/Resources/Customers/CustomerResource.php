@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Filament\Resources\Customers;
-
+ 
 use App\Filament\Resources\CustomerResource\Widgets\CustomerStats;
 use App\Filament\Resources\Customers\Pages\CreateCustomer;
 use App\Filament\Resources\Customers\Pages\EditCustomer;
@@ -26,7 +26,7 @@ class CustomerResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::UserGroup;
 
-    protected static UnitEnum|string|null $navigationGroup = 'Customer Management';
+    // protected static UnitEnum|string|null $navigationGroup = 'Customer Management';
     
     
     public static function getNavigationBadge(): ?string
@@ -52,7 +52,7 @@ class CustomerResource extends Resource
     public static function getRelations(): array
     {
         return [
-            PostAssestmentsRelationManager::class
+            // PostAssestmentsRelationManager::class
         ];
     }
     /**

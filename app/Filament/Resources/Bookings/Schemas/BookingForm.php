@@ -331,6 +331,7 @@ class BookingForm
                         ->validatedWhenNotDehydrated(false)
                         ->reactive(),
                     Select::make('bed_id')
+                        
                         ->label('Bed')
                         ->relationship('bed', 'name')
                         ->options(Bed::available()->pluck('name', 'id'))
@@ -348,7 +349,8 @@ class BookingForm
                         })
                         // ->hidden(fn(callable $get) => $get('available_timeslots') == null)
                         ->preload()
-                        ->required(fn($record) => $record === null)
+                        ->visible(config('booking.requires_bed'))
+                        // ->required(fn($record) => $record === null)
                         // ->dehydrated(fal se)
                         ->validatedWhenNotDehydrated(false)
 
