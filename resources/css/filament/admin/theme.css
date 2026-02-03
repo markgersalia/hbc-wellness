@@ -5,3 +5,41 @@
 
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/filament/**/*';
+
+
+.fi-sidebar {
+    @apply border-r-1 border-gray-200;
+    /* background-color: #251a4d !important; */
+}
+.fi-sidebar-close-overlay{
+    /* @apply  fi-sidebar-close-overlay; */
+}
+.fi-page,
+.fi-page-content {
+    @apply w-full max-w-none;
+}
+/* Remove max width and centering */
+.fi-main,
+.fi-main .fi-main-content {
+    @apply bg-white;
+    max-width: 100% !important;
+    width: 100% !important;
+}
+
+.fi-page-sub-navigation-sidebar-ctn{
+    height: 100vh;
+    @apply border-r-1 border-gray-200 pr-5;
+}
+
+/* Kill the auto-centering */
+.fi-main .mx-auto {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+.fi-main-ctn{
+    /* background-color: #000 !important; */
+
+    display:flex;
+    flex: 2;
+    padding: 0;
+}

@@ -34,9 +34,9 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin') 
             ->colors([
-                'primary'=>'#D1855C'
-                // 'primary' => Color::Amber,
+                'primary'=>Color::Slate
             ])
+            ->breadCrumbs(false)
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->discoverClusters(in: app_path('Filament/Clusters'), for: 'App\\Filament\\Clusters')
@@ -62,7 +62,7 @@ class AdminPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ]) 
-            // ->viteTheme('resources/css/filament/admin/theme.css')
+            ->viteTheme('resources/css/filament/admin/theme.css')
             ->plugins([
                 FilamentShieldPlugin::make(), // ✅ register plugin
                 // BriskTheme::make()
@@ -72,18 +72,18 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->sidebarCollapsibleOnDesktop()
             ->subNavigationPosition(SubNavigationPosition::End)
-            ->unsavedChangesAlerts() 
-            // ->topbar(false)
+            ->unsavedChangesAlerts()  
             ->brandName(env('APP_NAME'))
             ->profile()
             ->spa()
             ->font('Poppins')
             ->path('admin')
             ->login()
+            ->topbar(false)
             ->authGuard('web')
             // ->topNavigation(true)
             
-            ->brandLogo(asset('images/logo.jpg'))
+            // ->brandLogo(asset('images/logo.jpg'))
             ->brandLogoHeight('50px')
             ->favicon(asset('images/logo.jpg'))  
 
