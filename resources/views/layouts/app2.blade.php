@@ -15,15 +15,30 @@
     @livewireStyles
     
     <style>
-        :root {
+        /* :root {
             --color-primary: #B8936D;
             --color-secondary: #8B7355;
             --color-dark: #2C2C2C;
             --color-light: #F8F6F3;
             --color-accent: #D4AF7A;
-        }
+        } */
 
-       
+        :root {
+        /* Main brand (sage green) */
+        --color-primary: #7e8f7f;
+
+        /* Slightly darker for hover / emphasis */
+        --color-secondary: #6f806f;
+
+        /* Text, sidebar, strong contrast - INVERTED for dark theme */
+        --color-dark: #f3f5f3;
+
+        /* Page background / cards - DARK sage */
+        --color-light: #1a1f1a;
+
+        /* Accent (soft gold-sage highlight) */
+        --color-accent: #a9b5a9;
+    }
 
         body {
             font-family: 'Montserrat', sans-serif;
@@ -185,7 +200,204 @@
             background: var(--color-primary);
         }
 
-        /* Mobile layout fixes */
+        /* Dark theme overrides for hardcoded Livewire colors */
+        .bg-white {
+            background-color: var(--color-light) !important;
+        }
+
+        #about .bg-white {
+            background-color: #242924 !important;
+        }
+
+        #treatments .bg-white {
+            background-color: #242924 !important;
+        }
+
+        .hover\:bg-white:hover {
+            background-color: var(--color-light) !important;
+        }
+
+        .text-white {
+            color: var(--color-dark) !important;
+        }
+
+        /* Specific overrides for buttons */
+        .hover\:bg-white:hover.text-primary {
+            color: var(--color-primary) !important;
+        }
+
+        .hover\:bg-white:hover.text-dark {
+            color: var(--color-dark) !important;
+        }
+
+        /* Override treatment cards hover effect */
+        #treatments .hover\:bg-white:hover {
+            background-color: #2a302a !important;
+        }
+
+        /* Override floating card background */
+        .absolute .bg-white {
+            background-color: #242924 !important;
+        }
+
+        /* Comprehensive dark theme overrides */
+        #about {
+            background-color: var(--color-light) !important;
+        }
+
+        #treatments {
+            background-color: var(--color-light) !important;
+        }
+
+        #services {
+            background-color: var(--color-light) !important;
+        }
+
+        /* Override treatment cards */
+        .bg-light.p-8 {
+            background-color: #242924 !important;
+        }
+
+        /* Override wellness package CTA */
+        .bg-gradient-to-r {
+            background: linear-gradient(to right, var(--color-primary), var(--color-secondary)) !important;
+        }
+
+        .bg-gradient-to-r .text-white {
+            color: var(--color-dark) !important;
+        }
+
+        .bg-gradient-to-r .text-white\/90 {
+            color: rgba(243, 245, 243, 0.9) !important;
+        }
+
+        /* Testimonials component overrides */
+        #testimonials {
+            background: linear-gradient(to bottom, var(--color-light), #242924) !important;
+        }
+
+        #testimonials .bg-white {
+            background-color: #242924 !important;
+        }
+
+        #testimonials .hover\:bg-primary:hover.text-white {
+            color: var(--color-dark) !important;
+        }
+
+        /* Booking form input overrides */
+        input[type="text"],
+        input[type="email"], 
+        input[type="tel"],
+        input[type="date"],
+        textarea,
+        select {
+            background-color: #2a302a !important;
+            border-color: #3a403a !important;
+            color: var(--color-dark) !important;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            background-color: #2a302a !important;
+            border-color: var(--color-primary) !important;
+            color: var(--color-dark) !important;
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: rgba(243, 245, 243, 0.5) !important;
+        }
+
+        /* Booking form card and success message */
+        .bg-white.shadow-2xl {
+            background-color: #242924 !important;
+        }
+
+        /* Footer component is already dark, but ensure consistency */
+        #contact {
+            background-color: var(--color-dark) !important;
+        }
+
+        #contact input[type="email"] {
+            background-color: rgba(126, 143, 127, 0.1) !important;
+            border-color: rgba(255, 255, 255, 0.2) !important;
+            color: var(--color-dark) !important;
+        }
+
+        #contact input[type="email"]::placeholder {
+            color: rgba(243, 245, 243, 0.5) !important;
+        }
+
+        /* Enhanced footer overrides - more specific targeting */
+        #contact {
+            background-color: #0f1410 !important;
+        }
+
+        #contact .text-white {
+            color: var(--color-dark) !important;
+        }
+
+        #contact .text-white\/90 {
+            color: rgba(243, 245, 243, 0.9) !important;
+        }
+
+        #contact .text-white\/80 {
+            color: rgba(243, 245, 243, 0.8) !important;
+        }
+
+        #contact .text-white\/70 {
+            color: rgba(243, 245, 243, 0.7) !important;
+        }
+
+        #contact .text-white\/60 {
+            color: rgba(243, 245, 243, 0.6) !important;
+        }
+
+        #contact .border-white\/10 {
+            border-color: rgba(243, 245, 243, 0.1) !important;
+        }
+
+        #contact .border-white\/20 {
+            border-color: rgba(243, 245, 243, 0.2) !important;
+        }
+
+        #contact .bg-white\/10 {
+            background-color: rgba(243, 245, 243, 0.1) !important;
+        }
+
+        #contact .placeholder-white\/50::placeholder {
+            color: rgba(243, 245, 243, 0.5) !important;
+        }
+
+        /* Social media icons in footer */
+        #contact svg {
+            color: var(--color-primary) !important;
+        }
+
+        /* Back to top button */
+        .fixed.bottom-8.right-8 {
+            background-color: var(--color-primary) !important;
+        }
+
+        .fixed.bottom-8.right-8:hover {
+            background-color: var(--color-secondary) !important;
+        }
+
+        /* Header theme toggle styling for dark theme */
+        header .bg-gray-200 {
+            background-color: #3a403a !important;
+        }
+
+        header .bg-white\/20 {
+            background-color: rgba(243, 245, 243, 0.2) !important;
+        }
+
+        header .toggle-slider {
+            background-color: var(--color-primary) !important;
+        }
+
+        /* Mobile layout fixes for dark theme */
         @media (max-width: 640px) {
             .container {
                 padding-left: 1rem !important;
@@ -207,13 +419,13 @@
     tailwind.config = {
         theme: {
             extend: {
-               colors: {
-                        primary: '#B8936D',
-                        secondary: '#8B7355',
-                        dark: '#2C2C2C',
-                        light: '#F8F6F3',
-                        accent: '#D4AF7A',
-                    },
+                colors: {
+                    primary: '#7e8f7f',
+                    secondary: '#6f806f',
+                    dark: '#f3f5f3',
+                    light: '#1a1f1a',
+                    accent: '#a9b5a9',
+                }
             }
         }
     }

@@ -1,7 +1,7 @@
 <div class="flex items-center space-x-3">
     <!-- Logo / Icon -->
     <div class="rounded-full">
-        <img src="{{ asset('images/logo.jpg') }}" class="w-12 h-12 object-cover" alt="HBC Wellness">
+        <img src="{{ asset('images/logo.jpg') }}" class="w-12 h-12 object-cover" alt="{{config('app.name')}}">
     </div>
 
     <!-- Brand Text -->

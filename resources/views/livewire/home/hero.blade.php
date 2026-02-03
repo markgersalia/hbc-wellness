@@ -28,20 +28,23 @@
 
             <!-- Subtitle -->
             <p class="text-white/90 text-sm lg:text-base tracking-[0.3em] uppercase font-light mb-6">
-                Welcome to HBC Wellness
+                Welcome to {{env('APP_NAME')}}
             </p>
 
             <!-- Main Heading -->
             <h1 class="text-5xl md:text-7xl lg:text-8xl font-display font-light text-white mb-6 leading-tight">
-                Beauty Centre
-                <span class="block italic font-normal mt-2">& Spa</span>
+                Your SPA Appointment
+                {{-- Beauty Centre
+                <span class="block italic font-normal mt-2">& Spa</span> --}}
+                <span class="block italic font-normal mt-2">Solution</span>
+                {{-- {{env("APP_TAGLINE")}} --}}
             </h1>
 
             <!-- Description -->
             <div class="max-w-2xl mx-auto mb-12">
                 <p class="text-white/80 text-lg lg:text-xl leading-relaxed font-light">
                     Your beauty truly matters to us. Experience tranquility and rejuvenation 
-                    at <span class="italic text-primary">HBC Wellness</span>.
+                    at <span class="italic text-primary">{{config('app.name')}}</span>.
                 </p>
             </div>
 

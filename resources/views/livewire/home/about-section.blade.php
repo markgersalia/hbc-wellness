@@ -26,7 +26,7 @@
             <!-- Text Content -->
             <div class="scroll-animate order-2 lg:order-1">
                 <p class="text-dark/70 text-base lg:text-lg leading-relaxed mb-6">
-                    At HBC Wellness, we believe that true beauty radiates from within. Our sanctuary offers a harmonious blend of traditional wellness practices and modern spa treatments, designed to rejuvenate your body, mind, and spirit.
+                    At {{config('app.name')}}, we believe that true beauty radiates from within. Our sanctuary offers a harmonious blend of traditional wellness practices and modern spa treatments, designed to rejuvenate your body, mind, and spirit.
                 </p>
                 
                 <p class="text-dark/70 text-base lg:text-lg leading-relaxed mb-8">

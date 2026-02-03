@@ -11,11 +11,12 @@ class Testimonials extends Component
 
     public function mount()
     {
+        $app_name = config('app.name');
         $this->testimonials = [
             [
                 'name' => 'Sarah Mitchell',
                 'service' => 'Full Body Massage',
-                'content' => 'An absolutely divine experience. The therapists at HBC Wellness are incredibly skilled and the atmosphere is so peaceful. I left feeling completely rejuvenated and can\'t wait to return.',
+                'content' => "An absolutely divine experience. The therapists at $app_name are incredibly skilled and the atmosphere is so peaceful. I left feeling completely rejuvenated and can\'t wait to return.",
                 'rating' => 5,
             ],
             [

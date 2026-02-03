@@ -1,4 +1,4 @@
-<section id="services" class="py-20 lg:py-32 bg-light">
+<section id="services" class="py-20 lg:py-32">
     <div class="container mx-auto px-6 lg:px-12">
         
         <!-- Services Grid -->

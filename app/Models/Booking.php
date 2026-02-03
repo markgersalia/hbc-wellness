@@ -150,7 +150,7 @@ class Booking extends Model implements Eventable
         // Before creating a new Customer
         static::creating(function ($booking) {
             // Generate a unique code
-            $booking->user_id = auth()->user()->id;
+            $booking->user_id = auth()->user()->id ?? null;
             
             if($booking->customer->is_vip){
                 $booking->status = 'confirmed';

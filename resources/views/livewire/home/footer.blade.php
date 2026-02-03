@@ -7,11 +7,11 @@
             <!-- About Column -->
             <div>
                 <div class="mb-6">
-                    <h3 class="text-2xl font-display text-white mb-2">HBC Wellness</h3>
-                    <p class="text-xs tracking-widest uppercase text-primary">Beauty & Spa Center</p>
+                    <img src="{{asset('images/dark-logo.png')}}" style="width: 140px" alt="">
+                    <p class="text-xs tracking-widest uppercase text-primary">{{env('APP_TAGLINE')}}</p>
                 </div>
                 <p class="text-white/70 text-sm leading-relaxed mb-6">
-                    Step into an oasis of magnificence we devised for your wellness journey. We are sure you'll love your time with HBC Wellness.
+                    Step into an oasis of magnificence we devised for your wellness journey. We are sure you'll love your time with {{config('app.name')}}.
                 </p>
                 <a href="#booking" 
                    class="inline-block px-6 py-3 bg-primary text-white text-xs tracking-wider uppercase font-medium hover:bg-secondary transition-all duration-300">
@@ -161,7 +161,7 @@
         <!-- Bottom Bar -->
         <div class="border-t border-white/10 pt-8">
             <div class="flex flex-col md:flex-row justify-between items-center text-sm text-white/60">
-                <p>© 2025 HBC Wellness. All Rights Reserved.</p>
+                <p>© 2025 {{config('app.name')}}. All Rights Reserved.</p>
                 <div class="flex space-x-6 mt-4 md:mt-0">
                     <a href="#" class="hover:text-primary transition-colors">Privacy Policy</a>
                     <a href="#" class="hover:text-primary transition-colors">Terms of Service</a>

@@ -19,6 +19,9 @@ class ListingForm
         return $schema
             ->components([
                 Section::make()->schema([
+                    Select::make('category_id')
+                        ->label('Category')
+                        ->relationship('category', 'name'),
                     TextInput::make('title')
                         ->required(),
                     RichEditor::make('description')
