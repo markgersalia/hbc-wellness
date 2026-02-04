@@ -34,7 +34,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin') 
             ->colors([
-                'primary'=>Color::Slate
+                'primary'=>Color::Amber
             ])
             ->breadCrumbs(false)
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
@@ -83,9 +83,9 @@ class AdminPanelProvider extends PanelProvider
             ->authGuard('web')
             // ->topNavigation(true)
             
-            // ->brandLogo(asset('images/logo.jpg'))
-            ->brandLogoHeight('50px')
-            ->favicon(asset('images/logo.jpg'))  
+            // ->brandLogo(asset('images/dark-logo.png'))
+            // ->brandLogoHeight('50px')
+            // ->favicon(asset('images/logo.jpg'))  
 
             ;
     }
