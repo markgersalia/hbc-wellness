@@ -8,7 +8,7 @@
 
 
 .fi-sidebar {
-    @apply border-r-1 border-gray-100 dark:border-none dark:bg-gray-950 bg-white;
+    @apply border-r-1 border-gray-100 dark:border-none dark:bg-gray-900 bg-white;
     /* background-color:; */
 
     /* background-color: #251a4d !important; */
@@ -56,5 +56,10 @@
     position: sticky;
     top: 0;
     z-index: 2;
+}
+
+.ec-day.ec-today { 
+    @apply dark:bg-gray-900;
+    /* background-color: var(--primary-50); */
 }
  

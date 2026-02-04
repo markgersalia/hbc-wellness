@@ -14,7 +14,7 @@ return [
     */
 
     'name' => env('APP_NAME', 'Laravel'),
-    'logo' => asset('images/logo.png'),
+    // 'logo' => asset('images/logo.png'),
 
     /*
     |--------------------------------------------------------------------------
