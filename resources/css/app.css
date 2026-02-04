@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* 1. Point to your config file */
-@config "../../tailwind.config.js";
+/* @config "../../tailwind.config.js"; */
 
 /* 2. Your existing theme overrides */
 @theme {
