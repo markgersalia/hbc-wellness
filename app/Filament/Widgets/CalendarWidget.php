@@ -33,9 +33,11 @@ use Filament\Forms\Components\Select;
 
 class CalendarWidget extends FilamentCalendarWidget
 {
-    
-        use HasWidgetShield;
 
+    use HasWidgetShield;
+    // protected bool $dayMaxEvents = true;
+    protected bool $useFilamentTimezone = true;
+    protected bool $eventResizeEnabled = true;
     // protected CalendarViewType $calendarView = CalendarViewType::ListDay;
     protected bool $eventClickEnabled = true;
     protected bool $dateClickEnabled  = true;
@@ -81,43 +83,45 @@ class CalendarWidget extends FilamentCalendarWidget
         return redirect(request()->header('Referer'));
     }
 
-   public function getHeaderActions(): array
-{
-    return [
-        Action::make('calendar_view_select')
-            ->label('Calendar View')
-            ->fillForm([
-                'calendar_view' => session('calendar_view'), // Use fillForm instead of default
-            ])
-            ->schema([
-                Select::make('calendar_view')
-                    ->label('View')
-                    ->default(session('calendar_view'))
-                    ->options([
-                        'dayGridMonth' => 'Month Grid',
-                        'listDay' => 'Day List',
-                        'listWeek' => 'Week List',
-                        'listMonth' => 'Month List',
-                        'listYear' => 'Year List',
-                        // 'resourceTimeGridDay' => 'Resource Day Grid',
-                        // 'resourceTimeGridWeek' => 'Resource Week Grid',
-                        // 'resourceTimelineDay' => 'Resource Day Timeline',
-                        // 'resourceTimelineWeek' => 'Resource Week Timeline',
-                        // 'resourceTimelineMonth' => 'Resource Month Timeline',
-                        'timeGridDay' => 'Day Grid',
-                        'timeGridWeek' => 'Week Grid',
-                    ])
-                    ->required()
-                    ->live()
-                    ->afterStateUpdated(fn ($state) => $this->setView(CalendarViewType::tryFrom($state)))
-            ])
-            ->action(function (array $data) {
-                // Action is handled by the live afterStateUpdated
-            })
-            ->modalHeading('Select Calendar View')
-            ->modalSubmitActionLabel('Close'),
-    ];
-}
+
+      
+    public function getHeaderActions(): array
+    {
+        return [
+            Action::make('calendar_view_select')
+                ->label('Calendar View')
+                ->fillForm([
+                    'calendar_view' => session('calendar_view'), // Use fillForm instead of default
+                ])
+                ->schema([
+                    Select::make('calendar_view')
+                        ->label('View')
+                        ->default(session('calendar_view'))
+                        ->options([
+                            'dayGridMonth' => 'Month Grid',
+                            'listDay' => 'Day List',
+                            'listWeek' => 'Week List',
+                            'listMonth' => 'Month List',
+                            'listYear' => 'Year List',
+                            // 'resourceTimeGridDay' => 'Resource Day Grid',
+                            // 'resourceTimeGridWeek' => 'Resource Week Grid',
+                            // 'resourceTimelineDay' => 'Resource Day Timeline',
+                            // 'resourceTimelineWeek' => 'Resource Week Timeline',
+                            // 'resourceTimelineMonth' => 'Resource Month Timeline',
+                            'timeGridDay' => 'Day Grid',
+                            'timeGridWeek' => 'Week Grid',
+                        ])
+                        ->required()
+                        ->live()
+                        ->afterStateUpdated(fn($state) => $this->setView(CalendarViewType::tryFrom($state)))
+                ])
+                ->action(function (array $data) {
+                    // Action is handled by the live afterStateUpdated
+                })
+                ->modalHeading('Select Calendar View')
+                ->modalSubmitActionLabel('Close'),
+        ];
+    }
 
     protected function getCalendarConfig(): array
     {

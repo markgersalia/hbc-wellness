@@ -35,6 +35,7 @@ class TherapistLeave extends Model implements Eventable
             ->start($this->start_date)
             ->end($this->end_date)
             ->backgroundColor("#808080")
+            ->displayAuto() 
             // ->backgroundColor('#ff0000')
             ->allDay()
             // ->url(

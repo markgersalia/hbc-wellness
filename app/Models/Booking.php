@@ -132,8 +132,8 @@ class Booking extends Model implements Eventable
             ->start($this->start_time)
             ->end($this->end_time)
             ->extendedProp('customer_name', $this->customer->name)
-            ->backgroundColor($this->getStatusColor())
-            // ->backgroundColor('#FE9A00')
+            // ->backgroundColor($this->getStatusColor())
+            ->backgroundColor('#FE9A00')
         ;
     }
 

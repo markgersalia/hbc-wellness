@@ -36,7 +36,7 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary'=>Color::Amber
             ])
-            ->breadCrumbs(false)
+            // ->breadCrumbs(false)
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->discoverClusters(in: app_path('Filament/Clusters'), for: 'App\\Filament\\Clusters')
@@ -81,10 +81,11 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->topbar(false)
             ->authGuard('web')
+            ->globalSearch(false)
             // ->topNavigation(true)
             
-            // ->brandLogo(asset('images/dark-logo.png'))
-            // ->brandLogoHeight('50px')
+            ->brandLogo(asset('images/dark-logo.png'))
+            ->brandLogoHeight('50px')
             // ->favicon(asset('images/logo.jpg'))  
 
             ;
