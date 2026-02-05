@@ -10,6 +10,8 @@ use App\Models\Therapist;
 use App\Models\Customer;
 use Carbon\Carbon;
 use App\Services\TimeslotService;
+use Filament\Actions\Action;
+use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
 
 class BookingForm extends Component
@@ -20,12 +22,10 @@ class BookingForm extends Component
     // Step 1: Service Selection
     public $selectedCategory = '';
     public $selectedService = '';
-    public $selectedListing = '';
-    public $selectedBed = '';
+    public $selectedListing = ''; 
     public $categories = [];
     public $services = [];
-    public $listings = [];
-    public $beds = [];
+    public $listings = []; 
     
 
     // Step 2: Date & Time
@@ -60,11 +60,7 @@ class BookingForm extends Component
     protected function getValidationRules(): array
     {
         $rules = $this->rules;
-        
-        // Add bed_id validation only if required by config
-        if (config('booking.requires_bed')) {
-            $rules['selectedBed'] = 'required|exists:beds,id';
-        }
+         
         
         return $rules;
     }
@@ -76,9 +72,7 @@ class BookingForm extends Component
         'selectedListing.exists' => 'Selected service is not available',
         'selectedDate.required' => 'Please select a date',
         'selectedDate.after_or_equal' => 'Selected date must be today or in the future',
-        'selectedTime.required' => 'Please select a time slot',
-        'selectedBed.required' => 'Please select a bed',
-        'selectedBed.exists' => 'Selected bed is not available',
+        'selectedTime.required' => 'Please select a time slot', 
         'name.required' => 'Your name is required',
         'email.required' => 'Your email is required',
         'email.email' => 'Please enter a valid email address',
@@ -99,14 +93,7 @@ class BookingForm extends Component
                 ];
             })
             ->toArray();
-
-        // Load beds if required by config
-        if (config('booking.requires_bed')) {
-            $this->beds = \App\Models\Bed::where('is_available', true)
-                ->orderBy('name')
-                ->pluck('name', 'id')
-                ->toArray();
-        }
+ 
     }
 
     public function updatedSelectedCategory()
@@ -251,12 +238,7 @@ class BookingForm extends Component
                 'selectedDate' => 'required|date|after_or_equal:today',
                 'selectedTime' => 'required',
             ];
-            
-            // Add bed validation if required
-            if (config('booking.requires_bed')) {
-                $step3Rules['selectedBed'] = 'required|exists:beds,id';
-            }
-            
+             
             $this->validate($step3Rules);
             
             // Additional validation for date/time availability
@@ -278,12 +260,7 @@ class BookingForm extends Component
                 'email' => 'required|email',
                 'phone' => 'required|string|min:10',
             ];
-            
-            // Add bed validation if required
-            if (config('booking.requires_bed')) {
-                $step4Rules['selectedBed'] = 'required|exists:beds,id';
-            }
-            
+             
             $this->validate($step4Rules);
         }
     }
@@ -329,14 +306,27 @@ class BookingForm extends Component
                 'payment_status' => 'pending',
                 'booking_number' => 'BK-' . str_pad(Booking::max('id') + 1, 5, '0', STR_PAD_LEFT),
             ];
-
-            // Add bed_id only if required by config
-            if (config('booking.requires_bed')) {
-                $bookingData['bed_id'] = $this->selectedBed;
-            }
+ 
 
             $this->booking = Booking::create($bookingData);
 
+
+            $recipient = auth()->user();
+ 
+                    
+$recipient->notify(
+    Notification::make()
+        ->title('New External Appointment')
+        ->body("Appointment {$this->booking->booking_number} has been created for {$customer->name}. Service: {$listing->title} ({$listing->type}) scheduled for " . Carbon::parse($this->selectedDate)->format('M d, Y') . " at {$startTime}. Total: ₱" . number_format($listing->price, 2) . ". Status: Pending payment.")
+        ->success()
+         ->actions([
+            Action::make('view')
+                ->label('View Booking')
+                ->url(route('filament.admin.resources.bookings.edit', ['record' => $this->booking->id]))
+                ->markAsRead(),
+        ])
+        ->toDatabase()
+);
             DB::commit();
 
             $this->bookingConfirmed = true;

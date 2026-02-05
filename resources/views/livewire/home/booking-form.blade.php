@@ -297,34 +297,7 @@
                                 </div>
                             </div>
                         @endif
-
-                        <!-- Bed Selection (Conditional) -->
-                        @if (config('booking.requires_bed') && $selectedDate && count($availableTimes) > 0)
-                            <div class="mt-8">
-                                <label class="block text-sm font-medium text-gray-700 mb-4 uppercase tracking-wider">
-                                    Select Bed
-                                </label>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                                    @foreach ($beds as $bedId => $bedName)
-                                        <label class="cursor-pointer">
-                                            <input 
-                                                type="radio" 
-                                                wire:model.live="selectedBed" 
-                                                value="{{ $bedId }}" 
-                                                class="peer sr-only">
-                                            <div class="p-4 text-center border-2 transition-all duration-300
-                                                peer-checked:border-primary peer-checked:bg-primary peer-checked:text-white 
-                                                hover:border-primary/50 border-gray-200">
-                                                <span class="font-medium">{{ $bedName }}</span>
-                                            </div>
-                                        </label>
-                                    @endforeach
-                                </div>
-                                @error('selectedBed') 
-                                    <p class="text-red-500 text-sm mt-2">{{ $message }}</p> 
-                                @enderror
-                            </div>
-                        @endif
+ 
                     </div>
                 @endif
 

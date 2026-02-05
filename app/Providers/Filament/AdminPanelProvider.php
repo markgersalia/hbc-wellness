@@ -8,6 +8,7 @@ use App\Filament\Widgets\Sales;
 use App\Filament\Widgets\StatsOverview;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filafly\Themes\Brisk\BriskTheme;
+use Filament\Enums\DatabaseNotificationsPosition;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -84,6 +85,8 @@ class AdminPanelProvider extends PanelProvider
             ->globalSearch(false)
             // ->topNavigation(true)
             
+            ->databaseNotifications()
+            ->databaseNotifications(position: DatabaseNotificationsPosition::Sidebar)
             ->brandLogo(asset('images/dark-logo.png'))
             ->brandLogoHeight('50px')
             // ->favicon(asset('images/logo.jpg'))  

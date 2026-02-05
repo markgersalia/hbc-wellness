@@ -47,4 +47,15 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+      /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    public static function getAdminUsers()
+    {
+        return self::role('Admin')->get();
+    }
+
 }

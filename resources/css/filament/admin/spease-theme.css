@@ -1,7 +1,7 @@
 
 /* Sidebar - Always Dark Mode */
 .fi-sidebar {
-    @apply bg-linear-to-bl from-gray-700 to-gray-800 bg-linear-to-t text-white; 
+    @apply bg-linear-to-b from-gray-800 to-gray-950 bg-linear-to-t text-white; 
     border-right-color: rgb(31 41 55) !important; /* gray-800 */
 }
 .fi-body {
@@ -36,7 +36,7 @@
 }
 
 .fi-sidebar .fi-sidebar-item-button.fi-active {
-    @apply bg-black text-primary-500;
+    @apply bg-black text-yellow-500;
 }
 
 /* Sidebar icons */
@@ -49,12 +49,12 @@
 }
 
 .fi-sidebar .fi-sidebar-item-button.fi-active .fi-sidebar-item-icon {
-    @apply text-primary-500;
+    @apply text-yellow-500;
 }
 
 /* Badge on active items */
 .fi-sidebar .fi-sidebar-item-button.fi-active .fi-badge {
-    @apply border-primary-500 text-primary-500;
+    @apply border-yellow-500 text-yellow-500;
 }
 
 .fi-sidebar-close-overlay{
@@ -76,8 +76,8 @@
 
 /* Sub-navigation sidebar - Responsive to theme (NOT dark mode) */
 .fi-page-sub-navigation-sidebar-ctn{
-    /* height: 100vh; */
-    /* @apply border-r-1 border-gray-200 dark:border-none pr-5; */
+    height: 100vh;
+    @apply border-r-1 border-gray-200 dark:border-none pr-5;
 }
 
 /* Kill the auto-centering */
@@ -121,15 +121,16 @@ color-mix(in oklab, var(--color-white) 5%, transparent);
         }
     }
 }
-  .fi-sidebar-item {
+
+.fi-sidebar-item {
     &.fi-active {
         & > .fi-sidebar-item-btn {
-            & > .fi-sidebar-item-label {
-                color: var(--primary-400);
-            }
-        }
-    }
-}
+            & > .fi-sidebar-item-label { 
+                    color: var(--primary-400);
+                }
+            } 
+}}
+
 .fi-sidebar-item {
     &.fi-active {
         & > .fi-sidebar-item-btn {
