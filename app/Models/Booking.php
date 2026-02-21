@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Mail\BookingMailNotification;
+use App\Services\BookingNotificationService;
 use App\Services\InvoiceGenerateService;
 use App\Services\TimeslotService;
 use Carbon\Carbon;
@@ -28,7 +29,7 @@ class Booking extends Model implements Eventable
         'therapist_id',
         'start_time',
         'end_time',
-        'status',      // pending, confirmed, canceled, completed
+        'status',      // pending, confirmed, canceled, completed,expired
         'notes',
         'title',
         'price',
@@ -46,6 +47,7 @@ class Booking extends Model implements Eventable
             'confirmed' => '#60a5fa', // blue
             'canceled'  => '#f87171', // red
             'completed' => '#4ade80', // green
+            'expired'   => '#9ca3af', // gray
             default     => '#9ca3af', // gray
         };
         //    return match ($this->status) {
@@ -57,7 +59,7 @@ class Booking extends Model implements Eventable
         // };
     }
 
-    public $statuses = ['pending', 'confirmed', 'canceled', 'completed'];
+    public $statuses = ['pending', 'confirmed', 'canceled', 'completed', 'expired'];
 
     public function user()
     {
@@ -185,6 +187,8 @@ class Booking extends Model implements Eventable
                     $subject  = sprintf($statusMap[$booking->status]['subject'], $booking->booking_number);
 
                     Mail::to($booking->customer->email)->queue(new BookingMailNotification($subject, $template, $booking->toArray()));
+                    
+                    app(BookingNotificationService::class)->sendNotification($booking, $booking->status);
                 }
 
             }
@@ -197,11 +201,11 @@ class Booking extends Model implements Eventable
             $template = 'mails.bookings.created';
             $booking->load('listing', 'therapist','customer');
 
-
-
             if(!$booking->status){
                 $booking->status = 'pending';
             }
+
+            app(BookingNotificationService::class)->sendNotification($booking, 'created');
             Mail::to($booking->customer->email)->queue(new BookingMailNotification($subject, $template, $booking->toArray()));
 
                     $item = [[
