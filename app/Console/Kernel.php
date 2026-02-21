@@ -16,6 +16,7 @@ class Kernel extends ConsoleKernel
         // Optional: register your commands manually
         \App\Console\Commands\SendBookingReminders::class,
         \App\Console\Commands\ExpireBookings::class,
+        \App\Console\Commands\CompleteBookings::class,
     ];
 
     /**
@@ -35,6 +36,10 @@ class Kernel extends ConsoleKernel
             $schedule->command('booking:expire')->hourly()
                 ->withoutOverlapping()
                 ->runInBackground();
+
+            $schedule->command('booking:complete')->everyMinute()
+                ->withoutOverlapping()
+                ->runInBackground();
         }
 
         // -----------------------------
@@ -52,6 +57,13 @@ class Kernel extends ConsoleKernel
 
             $schedule->command('booking:expire')
                 ->hourly()
+                ->timezone('Asia/Manila')
+                ->withoutOverlapping()
+                ->runInBackground()
+                ->onOneServer();
+
+            $schedule->command('booking:complete')
+                ->everyTwoMinutes()
                 ->timezone('Asia/Manila')
                 ->withoutOverlapping()
                 ->runInBackground()
